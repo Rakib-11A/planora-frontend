@@ -2,14 +2,13 @@
 
 import { Bell } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
 
 import { routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { api, unwrapApiData } from '@/lib/api';
 import { myNotificationsResponseSchema, type NotificationItem } from '@/lib/schemas/me';
 import type { ApiResponse, PaginatedResponse } from '@/types/api';
-import { cn } from '@/lib/utils';
 
 export function NotificationBell() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -37,7 +36,9 @@ export function NotificationBell() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    void refresh();
+    startTransition(() => {
+      void refresh();
+    });
   }, [refresh]);
 
   if (!isAuthenticated) return null;

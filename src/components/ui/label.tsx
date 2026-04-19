@@ -2,7 +2,7 @@ import { type ComponentPropsWithoutRef } from 'react';
 
 import { cn } from '@/lib/utils';
 
-export interface LabelProps extends ComponentPropsWithoutRef<'label'> {}
+export type LabelProps = ComponentPropsWithoutRef<'label'>;
 
 export function Label({ className, ...rest }: LabelProps) {
   return (

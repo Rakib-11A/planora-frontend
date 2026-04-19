@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { EventPayBlock } from '@/components/events/event-pay-block';
@@ -51,7 +51,9 @@ export function EventParticipation({ eventId, isPaid, isPublic, eventFee }: Even
   }, [eventId, isAuthenticated]);
 
   useEffect(() => {
-    void loadMine();
+    startTransition(() => {
+      void loadMine();
+    });
   }, [loadMine]);
 
   async function join() {

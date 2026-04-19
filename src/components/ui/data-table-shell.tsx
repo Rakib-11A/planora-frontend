@@ -2,7 +2,7 @@ import { type ComponentPropsWithoutRef } from 'react';
 
 import { cn } from '@/lib/utils';
 
-export interface DataTableShellProps extends ComponentPropsWithoutRef<'div'> {}
+export type DataTableShellProps = ComponentPropsWithoutRef<'div'>;
 
 /** Horizontal scroll wrapper for wide tables on small screens. */
 export function DataTableShell({ className, ...rest }: DataTableShellProps) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,9 @@ export default function AdminUsersPage() {
   }
 
   useEffect(() => {
-    void fetchUsers('');
+    startTransition(() => {
+      void fetchUsers('');
+    });
   }, []);
 
   async function ban(id: string) {

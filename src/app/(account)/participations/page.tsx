@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Card } from '@/components/ui/card';
@@ -34,7 +34,9 @@ export default function ParticipationsPage() {
   }, []);
 
   useEffect(() => {
-    void load();
+    startTransition(() => {
+      void load();
+    });
   }, [load]);
 
   return (

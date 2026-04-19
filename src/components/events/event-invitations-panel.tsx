@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
@@ -39,7 +39,9 @@ export function EventInvitationsPanel({ eventId }: EventInvitationsPanelProps) {
   }, [eventId]);
 
   useEffect(() => {
-    void load();
+    startTransition(() => {
+      void load();
+    });
   }, [load]);
 
   async function sendInvite(e: React.FormEvent) {

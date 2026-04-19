@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { create } from 'zustand';
 
 import { TOKEN_KEY, routes } from '@/constants/config';
@@ -23,6 +24,9 @@ function withAuthUser(user: User | null): Pick<AuthState, 'user' | 'isAuthentica
   return { user, isAuthenticated: user !== null };
 }
 
+/** Coalesces concurrent `checkAuth` calls (navbar + several layouts each mount together). */
+let checkAuthInflight: Promise<void> | null = null;
+
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   isAuthenticated: false,
@@ -31,28 +35,48 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setUser: (user) => set(withAuthUser(user)),
 
   checkAuth: async () => {
-    set({ isLoading: true });
-    try {
-      if (typeof window === 'undefined') {
-        return;
-      }
-      const token = window.localStorage.getItem(TOKEN_KEY);
-      if (!token) {
-        set(withAuthUser(null));
-        return;
-      }
-
-      const envelope = (await api.get('auth/me')) as ApiResponse<User>;
-      set(withAuthUser(unwrapApiData(envelope)));
-    } catch (err) {
-      if (typeof window !== 'undefined') {
-        window.localStorage.removeItem(TOKEN_KEY);
-      }
-      set(withAuthUser(null));
-      console.error('[useAuthStore] checkAuth failed', err);
-    } finally {
-      set({ isLoading: false });
+    if (checkAuthInflight) {
+      return checkAuthInflight;
     }
+
+    checkAuthInflight = (async () => {
+      set({ isLoading: true });
+      try {
+        if (typeof window === 'undefined') {
+          return;
+        }
+        const token = window.localStorage.getItem(TOKEN_KEY);
+        if (!token) {
+          set(withAuthUser(null));
+          return;
+        }
+
+        const envelope = (await api.get('auth/me')) as ApiResponse<User>;
+        set(withAuthUser(unwrapApiData(envelope)));
+      } catch (err) {
+        if (
+          isAxiosError(err) &&
+          (err.response?.status === 429 || err.response?.status === 503)
+        ) {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(
+              '[useAuthStore] checkAuth rate-limited or unavailable; keeping token and existing session state'
+            );
+          }
+          return;
+        }
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(TOKEN_KEY);
+        }
+        set(withAuthUser(null));
+        console.error('[useAuthStore] checkAuth failed', err);
+      } finally {
+        set({ isLoading: false });
+        checkAuthInflight = null;
+      }
+    })();
+
+    return checkAuthInflight;
   },
 
   logout: async () => {

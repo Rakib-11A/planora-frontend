@@ -30,6 +30,13 @@ export async function fetchEventReviews(
         );
         return emptyReviews(page, limit);
       }
+      // Mis-ordered API mounts can surface 401 for public SSR fetches; degrade gracefully.
+      if (status === 401) {
+        console.warn(
+          '[reviews] GET reviews returned 401 (expected public); returning empty list for SSR.'
+        );
+        return emptyReviews(page, limit);
+      }
     }
     throw err;
   }

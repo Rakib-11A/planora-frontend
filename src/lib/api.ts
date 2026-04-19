@@ -89,7 +89,14 @@ api.interceptors.response.use(
     const message = error.response.data?.message ?? error.message ?? 'Something went wrong';
 
     if (status !== 401 || !originalRequest) {
-      notifyError(message);
+      // Rate limits / transient overload: avoid toast spam (many layouts mount together in dev).
+      if (status === 429 || status === 503) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[api] ${status} ${originalRequest?.url ?? ''}`, message);
+        }
+      } else {
+        notifyError(message);
+      }
       return Promise.reject(error);
     }
 

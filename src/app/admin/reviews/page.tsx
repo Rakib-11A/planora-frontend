@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { startTransition, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,6 @@ import { DataTableShell } from '@/components/ui/data-table-shell';
 import { PageHeader } from '@/components/ui/page-header';
 import { api, unwrapApiData } from '@/lib/api';
 import type { ApiResponse, PaginatedResponse } from '@/types/api';
-import { formatDate } from '@/lib/utils';
 
 interface AdminReviewRow {
   id: string;
@@ -40,7 +39,9 @@ export default function AdminReviewsPage() {
   }, []);
 
   useEffect(() => {
-    void load();
+    startTransition(() => {
+      void load();
+    });
   }, [load]);
 
   async function removeReview(id: string) {
@@ -87,7 +88,7 @@ export default function AdminReviewsPage() {
                   <td className="px-3 py-2 font-medium">{r.event.title}</td>
                   <td className="text-planora-muted px-3 py-2">{r.user.name}</td>
                   <td className="px-3 py-2">{r.rating}★</td>
-                  <td className="text-planora-muted max-w-xs truncate px-3 py-2">{r.comment}</td>
+                  <td className="text-planora-muted max-w-xs truncate px-3 py-2">{r.comment ?? '—'}</td>
                   <td className="px-3 py-2 text-right">
                     {r.deletedAt ? (
                       <span className="text-planora-muted text-xs">Deleted</span>

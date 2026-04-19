@@ -52,7 +52,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <p className="text-planora-primary text-xs font-semibold tracking-wide uppercase">Admin</p>
           <nav className="mt-3 flex flex-col gap-1" aria-label="Admin">
             {adminNav.map((item) => {
-              const active = pathname === item.href;
+              const active =
+                item.href === routes.admin
+                  ? pathname === routes.admin
+                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.href}

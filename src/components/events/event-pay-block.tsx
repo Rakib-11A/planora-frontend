@@ -33,7 +33,7 @@ export function EventPayBlock({ eventId, fee }: EventPayBlockProps) {
       const { paymentId: pid, paymentUrl } = parsed.data;
       setPaymentId(pid);
       window.open(paymentUrl, '_blank', 'noopener,noreferrer');
-      toast.success('Payment window opened. Complete checkout, then verify here.');
+      toast.success('Payment window opened. Complete checkout, then verify here (or wait for the gateway IPN).');
     } catch {
       toast.error('Could not start payment. You may need to join first or payment may already exist.');
     } finally {
@@ -49,7 +49,7 @@ export function EventPayBlock({ eventId, fee }: EventPayBlockProps) {
     setBusy(true);
     try {
       await api.post(`payments/${paymentId}/verify`);
-      toast.success('Payment verified.');
+      toast.success('Payment verified. You will remain pending until the host approves your registration.');
       router.refresh();
     } catch {
       toast.error('Verification failed. Try again after completing checkout.');
@@ -62,8 +62,8 @@ export function EventPayBlock({ eventId, fee }: EventPayBlockProps) {
     <Card variant="glass" id="event-pay">
       <CardTitle className="gradient-text text-xl font-bold">Complete payment</CardTitle>
       <CardDescription>
-        Fee {formatCurrency(fee, 'BDT', 'en-BD')}. Open the secure checkout, then confirm here so your
-        registration can continue.
+        Fee {formatCurrency(fee, 'BDT', 'en-BD')}. Open the secure checkout, then confirm here if needed. Paid
+        registrations stay pending until the event organizer approves you.
       </CardDescription>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button type="button" variant="primary" isLoading={busy} onClick={() => void startPay()}>

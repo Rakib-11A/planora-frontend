@@ -41,4 +41,7 @@ export const routes = {
   dashboard: '/dashboard',
   myEvents: '/my-events',
   profile: '/profile',
+  contact: '/contact',
+  privacy: '/privacy',
+  terms: '/terms',
 } as const;

@@ -21,11 +21,12 @@ export function CtaSection() {
   return (
     <section className="px-4 py-16">
       <Card
+        padding="none"
         className={cn(
-          'from-planora-secondary/15 to-planora-accent/15 mx-auto max-w-5xl border-0 bg-gradient-to-r shadow-md md:px-8 md:py-4'
+          'from-planora-secondary/15 to-planora-accent/15 mx-auto max-w-5xl border-0 bg-gradient-to-r shadow-md'
         )}
       >
-        <div className="grid grid-cols-1 items-center gap-10 text-center md:grid-cols-2 md:gap-12 md:text-left">
+        <div className="grid grid-cols-1 items-center gap-10 px-6 py-12 text-center md:grid-cols-2 md:gap-12 md:px-12 md:py-16 md:text-left">
           <div className="flex justify-center md:justify-start">
             <Sparkles
               className="text-planora-primary size-20 drop-shadow-sm md:size-28"

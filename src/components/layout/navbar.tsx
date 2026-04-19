@@ -6,9 +6,11 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import { Logo } from '@/components/layout/logo';
+import { NotificationBell } from '@/components/layout/notification-bell';
 import { Button } from '@/components/ui/button';
 import { routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
+import { UserRole } from '@/types/user';
 import { cn } from '@/lib/utils';
 
 const navLinkBase =
@@ -160,6 +162,86 @@ export function Navbar() {
       >
         Profile
       </Link>
+      <Link
+        href={routes.participations}
+        className={cn(
+          navLinkBase,
+          isActivePath(pathname, routes.participations) && 'text-planora-primary'
+        )}
+        onClick={() => {
+          setDropdownOpen(false);
+          onNavigate?.();
+        }}
+      >
+        Participations
+      </Link>
+      <Link
+        href={routes.invitations}
+        className={cn(
+          navLinkBase,
+          isActivePath(pathname, routes.invitations) && 'text-planora-primary'
+        )}
+        onClick={() => {
+          setDropdownOpen(false);
+          onNavigate?.();
+        }}
+      >
+        Invitations
+      </Link>
+      <Link
+        href={routes.payments}
+        className={cn(
+          navLinkBase,
+          isActivePath(pathname, routes.payments) && 'text-planora-primary'
+        )}
+        onClick={() => {
+          setDropdownOpen(false);
+          onNavigate?.();
+        }}
+      >
+        Payments
+      </Link>
+      <Link
+        href={routes.notifications}
+        className={cn(
+          navLinkBase,
+          isActivePath(pathname, routes.notifications) && 'text-planora-primary'
+        )}
+        onClick={() => {
+          setDropdownOpen(false);
+          onNavigate?.();
+        }}
+      >
+        Notifications
+      </Link>
+      {user?.role === UserRole.ADMIN ? (
+        <Link
+          href={routes.admin}
+          className={cn(
+            navLinkBase,
+            isActivePath(pathname, routes.admin) && 'text-planora-primary'
+          )}
+          onClick={() => {
+            setDropdownOpen(false);
+            onNavigate?.();
+          }}
+        >
+          Admin
+        </Link>
+      ) : null}
+      <Link
+        href={routes.changePassword}
+        className={cn(
+          navLinkBase,
+          isActivePath(pathname, routes.changePassword) && 'text-planora-primary'
+        )}
+        onClick={() => {
+          setDropdownOpen(false);
+          onNavigate?.();
+        }}
+      >
+        Change password
+      </Link>
       <Button
         type="button"
         variant="ghost"
@@ -188,7 +270,8 @@ export function Navbar() {
             {navLinks()}
           </div>
 
-          <div className="hidden items-center gap-3 md:flex">
+          <div className="hidden items-center gap-2 md:flex">
+            <NotificationBell />
             {isLoading ? (
               <div className="bg-planora-border h-9 w-36 animate-pulse rounded-md" aria-hidden />
             ) : isAuthenticated && user ? (
@@ -254,7 +337,10 @@ export function Navbar() {
         aria-hidden={!mobileMenuOpen}
       >
         <div className="border-planora-border flex h-16 items-center justify-between border-b px-4">
-          <span className="text-planora-primary text-sm font-semibold">Menu</span>
+          <div className="flex items-center gap-2">
+            <span className="text-planora-primary text-sm font-semibold">Menu</span>
+            <NotificationBell />
+          </div>
           <button
             type="button"
             className="text-planora-primary hover:bg-planora-primary/10 rounded-md p-2"

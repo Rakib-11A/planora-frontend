@@ -1,10 +1,9 @@
 'use client';
 
 import { Calendar, MapPin } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import { EventCard } from '@/components/events/event-card';
-import { Button } from '@/components/ui/button';
 import { routes } from '@/constants/config';
 import type { EventWithType } from '@/types/event';
 import { cn, formatDate } from '@/lib/utils';
@@ -15,14 +14,20 @@ export interface HeroSectionProps {
 
 const MAX_DESCRIPTION_LENGTH = 150;
 
+const linkBtnBase =
+  'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-planora-primary focus-visible:ring-offset-2';
+
+const linkBtnPrimary = 'bg-planora-primary text-white hover:bg-planora-primary/90';
+
+const linkBtnOutline =
+  'border-2 border-planora-primary bg-transparent text-planora-primary hover:bg-planora-primary/10';
+
 function truncateDescription(text: string, max = MAX_DESCRIPTION_LENGTH): string {
   if (text.length <= max) return text;
   return `${text.slice(0, max).trimEnd()}...`;
 }
 
 export function HeroSection({ featuredEvent }: HeroSectionProps) {
-  const router = useRouter();
-
   return (
     <section
       className={cn(
@@ -60,16 +65,15 @@ export function HeroSection({ featuredEvent }: HeroSectionProps) {
                 {truncateDescription(featuredEvent.description)}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => router.push(routes.event(featuredEvent.id))}
+                <Link
+                  href={routes.event(featuredEvent.id)}
+                  className={cn(linkBtnBase, linkBtnPrimary)}
                 >
                   Join Now
-                </Button>
-                <Button type="button" variant="outline" onClick={() => router.push(routes.events)}>
+                </Link>
+                <Link href={routes.events} className={cn(linkBtnBase, linkBtnOutline)}>
                   View All Events
-                </Button>
+                </Link>
               </div>
             </>
           ) : (
@@ -81,9 +85,9 @@ export function HeroSection({ featuredEvent }: HeroSectionProps) {
                 Create, manage, and participate in events seamlessly
               </p>
               <div className="mt-8">
-                <Button type="button" variant="primary" onClick={() => router.push(routes.events)}>
+                <Link href={routes.events} className={cn(linkBtnBase, linkBtnPrimary)}>
                   Explore Events
-                </Button>
+                </Link>
               </div>
             </>
           )}

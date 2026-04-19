@@ -9,6 +9,13 @@ import toast from 'react-hot-toast';
 import { API_URL, TOKEN_KEY, routes } from '@/constants/config';
 import type { ApiErrorBody, ApiResponse } from '@/types/api';
 
+/** `react-hot-toast` is client-only; avoid calling it during RSC / SSR fetches. */
+function notifyError(message: string): void {
+  if (typeof window !== 'undefined') {
+    toast.error(message);
+  }
+}
+
 declare module 'axios' {
   export interface AxiosRequestConfig {
     /** Prevents infinite retry when refreshing the access token. */
@@ -71,7 +78,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (!error.response) {
-      toast.error('Network error. Check your connection and try again.');
+      notifyError('Network error. Check your connection and try again.');
       if (process.env.NODE_ENV === 'development') {
         console.error('[api] network error', error);
       }
@@ -82,13 +89,13 @@ api.interceptors.response.use(
     const message = error.response.data?.message ?? error.message ?? 'Something went wrong';
 
     if (status !== 401 || !originalRequest) {
-      toast.error(message);
+      notifyError(message);
       return Promise.reject(error);
     }
 
     if (originalRequest.url?.includes('auth/refresh-token')) {
       clearSession();
-      toast.error('Session expired. Please sign in again.');
+      notifyError('Session expired. Please sign in again.');
       if (typeof window !== 'undefined') {
         window.location.assign(routes.login);
       }
@@ -97,7 +104,7 @@ api.interceptors.response.use(
 
     const hadAuth = Boolean(getAuthorizationHeader(originalRequest));
     if (!hadAuth || originalRequest._retry) {
-      toast.error(message);
+      notifyError(message);
       return Promise.reject(error);
     }
 
@@ -112,7 +119,7 @@ api.interceptors.response.use(
       return api.request(originalRequest);
     } catch (refreshError) {
       clearSession();
-      toast.error('Session expired. Please sign in again.');
+      notifyError('Session expired. Please sign in again.');
       if (typeof window !== 'undefined') {
         window.location.assign(routes.login);
       }

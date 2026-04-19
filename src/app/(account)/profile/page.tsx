@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
+import { MarketingHero } from '@/components/ui/marketing-hero';
 import { routes } from '@/constants/config';
 import { api, unwrapApiData } from '@/lib/api';
 import type { ApiResponse } from '@/types/api';
@@ -36,62 +36,92 @@ export default function ProfilePage() {
   }, []);
 
   if (loading) {
-    return <p className="text-planora-muted text-sm">Loading profile…</p>;
+    return (
+      <div className="w-full">
+        <div className="bg-planora-muted/15 mb-10 h-48 animate-pulse rounded-3xl" />
+        <section className="rounded-3xl border border-white/35 bg-white/35 p-8 shadow-lifted backdrop-blur-md dark:border-white/10 dark:bg-slate-900/35">
+          <div className="bg-planora-muted/20 h-40 animate-pulse rounded-2xl" />
+        </section>
+      </div>
+    );
   }
 
   if (!user) {
-    return <p className="text-planora-muted text-sm">Profile unavailable.</p>;
+    return (
+      <div className="w-full">
+        <MarketingHero
+          className="mb-10"
+          eyebrow="Account"
+          sectionMaxWidthClass="max-w-5xl"
+          innerMaxWidthClass="max-w-3xl"
+          title="Profile"
+          description="Your account details from Planora."
+        />
+        <section className="rounded-3xl border border-white/35 bg-white/35 p-8 shadow-lifted backdrop-blur-md dark:border-white/10 dark:bg-slate-900/35">
+          <p className="text-planora-muted text-sm">Profile unavailable.</p>
+        </section>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <PageHeader
+    <div className="w-full">
+      <MarketingHero
+        className="mb-10"
+        eyebrow="Account"
+        sectionMaxWidthClass="max-w-5xl"
+        innerMaxWidthClass="max-w-3xl"
         title="Profile"
-        description="Your account details from Planora. Name and email are managed by the API; use password tools below to update credentials."
-        actions={
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push(routes.changePassword)}
-          >
+        description="Your account details from Planora. Name and email are managed by the API; use password tools to update credentials."
+      >
+        <div className="mt-6 flex justify-center">
+          <Button type="button" variant="outline" onClick={() => router.push(routes.changePassword)}>
             Change password
           </Button>
-        }
-      />
-      <Card>
-        <CardTitle>Account</CardTitle>
-        <CardDescription>Read-only snapshot of your signed-in user.</CardDescription>
-        <dl className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div>
-            <dt className="text-planora-muted text-xs font-medium tracking-wide uppercase">Name</dt>
-            <dd className="mt-1 text-sm font-medium text-slate-900">{user.name}</dd>
-          </div>
-          <div>
-            <dt className="text-planora-muted text-xs font-medium tracking-wide uppercase">Email</dt>
-            <dd className="mt-1 text-sm font-medium text-slate-900">{user.email}</dd>
-          </div>
-          <div>
-            <dt className="text-planora-muted text-xs font-medium tracking-wide uppercase">Role</dt>
-            <dd className="mt-1 text-sm font-medium text-slate-900">{user.role}</dd>
-          </div>
-          <div>
-            <dt className="text-planora-muted text-xs font-medium tracking-wide uppercase">Email verified</dt>
-            <dd className="mt-1 text-sm font-medium text-slate-900">
-              {user.isEmailVerified ? 'Yes' : 'No'}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-planora-muted text-xs font-medium tracking-wide uppercase">Member since</dt>
-            <dd className="mt-1 text-sm font-medium text-slate-900">
-              {formatDate(user.createdAt, undefined, {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </dd>
-          </div>
-        </dl>
-      </Card>
+        </div>
+      </MarketingHero>
+
+      <section className="rounded-3xl border border-white/35 bg-white/35 p-5 shadow-lifted backdrop-blur-md dark:border-white/10 dark:bg-slate-900/35 md:p-8">
+        <Card
+          variant="glass"
+          className="motion-safe:transition-shadow motion-safe:duration-300 motion-safe:hover:shadow-glow-primary"
+        >
+          <CardTitle className="gradient-text text-xl font-bold">Account</CardTitle>
+          <CardDescription className="text-slate-600 dark:text-slate-300">
+            Read-only snapshot of your signed-in user.
+          </CardDescription>
+          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div>
+              <dt className="text-planora-muted text-xs font-medium uppercase tracking-wide">Name</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">{user.name}</dd>
+            </div>
+            <div>
+              <dt className="text-planora-muted text-xs font-medium uppercase tracking-wide">Email</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">{user.email}</dd>
+            </div>
+            <div>
+              <dt className="text-planora-muted text-xs font-medium uppercase tracking-wide">Role</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">{user.role}</dd>
+            </div>
+            <div>
+              <dt className="text-planora-muted text-xs font-medium uppercase tracking-wide">Email verified</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {user.isEmailVerified ? 'Yes' : 'No'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-planora-muted text-xs font-medium uppercase tracking-wide">Member since</dt>
+              <dd className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {formatDate(user.createdAt, undefined, {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </dd>
+            </div>
+          </dl>
+        </Card>
+      </section>
     </div>
   );
 }

@@ -41,9 +41,9 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <Card>
-      <CardTitle>Reset password</CardTitle>
-      <CardDescription>
+    <Card variant="glass">
+      <CardTitle className="gradient-text text-xl font-bold tracking-tight">Reset password</CardTitle>
+      <CardDescription className="text-slate-600 dark:text-slate-300">
         Enter the email for your account. If it exists, you will receive reset instructions.
       </CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
@@ -65,8 +65,11 @@ export function ForgotPasswordForm() {
           </Button>
         </FormStack>
       </form>
-      <p className="text-planora-muted mt-6 text-center text-sm">
-        <Link href={routes.login} className="text-planora-primary font-medium hover:underline">
+      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+        <Link
+          href={routes.login}
+          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+        >
           Back to sign in
         </Link>
       </p>

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -55,9 +56,11 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <Card>
-      <CardTitle>Change password</CardTitle>
-      <CardDescription>Your session stays active after a successful update.</CardDescription>
+    <Card variant="glass">
+      <CardTitle className="gradient-text text-xl font-bold tracking-tight">Change password</CardTitle>
+      <CardDescription className="text-slate-600 dark:text-slate-300">
+        Your session stays active after a successful update.
+      </CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
         <FormStack>
           <div>
@@ -96,11 +99,19 @@ export function ChangePasswordForm() {
               error={fieldErrors.confirmPassword}
             />
           </div>
-          <Button type="submit" variant="primary" isLoading={loading}>
+          <Button type="submit" variant="primary" className="w-full" isLoading={loading}>
             Save password
           </Button>
         </FormStack>
       </form>
+      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+        <Link
+          href={routes.dashboard}
+          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+        >
+          Back to dashboard
+        </Link>
+      </p>
     </Card>
   );
 }

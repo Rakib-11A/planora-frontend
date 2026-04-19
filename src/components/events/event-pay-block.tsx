@@ -59,8 +59,8 @@ export function EventPayBlock({ eventId, fee }: EventPayBlockProps) {
   }
 
   return (
-    <Card>
-      <CardTitle>Complete payment</CardTitle>
+    <Card variant="glass">
+      <CardTitle className="gradient-text text-xl font-bold">Complete payment</CardTitle>
       <CardDescription>
         Fee {formatCurrency(fee, 'BDT', 'en-BD')}. Open the secure checkout, then confirm here so your
         registration can continue.

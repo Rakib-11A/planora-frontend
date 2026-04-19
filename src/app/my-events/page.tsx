@@ -9,32 +9,21 @@ import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
-import { PageHeader } from '@/components/ui/page-header';
-import { PageShell } from '@/components/ui/page-shell';
+import { MarketingHero } from '@/components/ui/marketing-hero';
 import { routes } from '@/constants/config';
-import { useAuthStore } from '@/hooks/useAuthStore';
 import { fetchMyEventsList } from '@/lib/events';
 import type { EventWithType } from '@/types/event';
 import { formatDate } from '@/lib/utils';
 
+const emptyGlass =
+  'rounded-2xl border border-dashed border-planora-primary/25 bg-white/40 backdrop-blur-sm dark:border-white/15 dark:bg-slate-900/40';
+
 export default function MyEventsPage() {
   const router = useRouter();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isLoadingAuth = useAuthStore((s) => s.isLoading);
-  const checkAuth = useAuthStore((s) => s.checkAuth);
   const [items, setItems] = useState<EventWithType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    void checkAuth();
-  }, [checkAuth]);
-
-  useEffect(() => {
-    if (isLoadingAuth) return;
-    if (!isAuthenticated) {
-      router.replace(routes.login);
-      return;
-    }
     let cancelled = false;
     void (async () => {
       try {
@@ -49,80 +38,99 @@ export default function MyEventsPage() {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, isLoadingAuth, router]);
+  }, []);
 
-  if (isLoadingAuth || loading) {
+  if (loading) {
     return (
-      <PageShell>
-        <p className="text-planora-muted text-sm">Loading…</p>
-      </PageShell>
+      <div className="w-full">
+        <div className="mb-6">
+          <div className="bg-planora-muted/25 h-4 w-48 animate-pulse rounded-md" />
+        </div>
+        <div className="overflow-hidden rounded-3xl border border-white/35 bg-white/40 p-6 shadow-lifted backdrop-blur-md dark:border-white/10 dark:bg-slate-900/35">
+          <div className="bg-planora-muted/15 mb-6 h-40 animate-pulse rounded-2xl" />
+          <div className="space-y-3">
+            <div className="bg-planora-muted/20 h-16 animate-pulse rounded-2xl" />
+            <div className="bg-planora-muted/20 h-16 animate-pulse rounded-2xl" />
+          </div>
+        </div>
+      </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
   return (
-    <PageShell>
+    <div className="w-full">
       <Breadcrumbs
+        className="mb-6 text-slate-600 dark:text-slate-300 [&_a]:font-medium [&_a]:text-planora-primary [&_a]:hover:underline dark:[&_a]:text-sky-300"
         items={[
           { href: routes.dashboard, label: 'Dashboard' },
           { href: routes.myEvents, label: 'My events' },
         ]}
       />
-      <PageHeader
+      <MarketingHero
+        className="mb-10"
+        eyebrow="Organizing"
+        sectionMaxWidthClass="max-w-5xl"
+        innerMaxWidthClass="max-w-3xl"
         title="My events"
         description="Events you created and manage on Planora."
-        actions={
+      >
+        <div className="mt-6 flex justify-center">
           <Button type="button" variant="primary" onClick={() => router.push(routes.createEvent)}>
             Create event
           </Button>
-        }
-      />
-      {items.length === 0 ? (
-        <EmptyState
-          title="No events yet"
-          description="Create your first event to see it in this list."
-          action={
-            <Button type="button" variant="primary" onClick={() => router.push(routes.createEvent)}>
-              Create event
-            </Button>
-          }
-        />
-      ) : (
-        <ul className="space-y-3">
-          {items.map((ev) => (
-            <li key={ev.id}>
-              <Card padding="sm" className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <Link
-                    href={routes.event(ev.id)}
-                    className="text-planora-primary font-semibold hover:underline"
-                  >
-                    {ev.title}
-                  </Link>
-                  <p className="text-planora-muted text-xs">
-                    {formatDate(ev.dateTime, undefined, {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                </div>
-                <Link
-                  href={routes.editEvent(ev.id)}
-                  className="text-sm font-medium text-slate-700 hover:text-planora-primary hover:underline"
+        </div>
+      </MarketingHero>
+
+      <section className="rounded-3xl border border-white/35 bg-white/35 p-5 shadow-lifted backdrop-blur-md dark:border-white/10 dark:bg-slate-900/35 md:p-8">
+        {items.length === 0 ? (
+          <EmptyState
+            className={emptyGlass}
+            title="No events yet"
+            description="Create your first event to see it in this list."
+            action={
+              <Button type="button" variant="primary" onClick={() => router.push(routes.createEvent)}>
+                Create event
+              </Button>
+            }
+          />
+        ) : (
+          <ul className="space-y-3">
+            {items.map((ev) => (
+              <li key={ev.id}>
+                <Card
+                  variant="glass"
+                  padding="sm"
+                  className="flex flex-wrap items-center justify-between gap-2 motion-safe:transition-shadow motion-safe:duration-300 motion-safe:hover:shadow-glow-primary"
                 >
-                  Edit
-                </Link>
-              </Card>
-            </li>
-          ))}
-        </ul>
-      )}
-    </PageShell>
+                  <div>
+                    <Link
+                      href={routes.event(ev.id)}
+                      className="font-semibold text-planora-primary hover:underline dark:text-sky-300"
+                    >
+                      {ev.title}
+                    </Link>
+                    <p className="text-planora-muted text-xs">
+                      {formatDate(ev.dateTime, undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                  <Link
+                    href={routes.editEvent(ev.id)}
+                    className="text-sm font-medium text-slate-700 hover:text-planora-primary hover:underline dark:text-slate-300 dark:hover:text-sky-300"
+                  >
+                    Edit
+                  </Link>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
   );
 }

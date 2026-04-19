@@ -59,21 +59,35 @@ export function EventsGrid({
   if (events.length === 0) {
     return (
       <div
-        className="border-planora-border bg-planora-surface/40 flex flex-col items-center justify-center gap-6 rounded-lg border border-dashed px-6 py-16 text-center"
+        className={cn(
+          'flex flex-col items-center justify-center gap-6 rounded-3xl border border-dashed border-slate-300/60',
+          'bg-gradient-to-b from-white/50 to-slate-50/80 px-6 py-16 text-center shadow-depth-soft',
+          'backdrop-blur-sm dark:border-white/15 dark:from-slate-900/50 dark:to-slate-900/30'
+        )}
         role="status"
         aria-live="polite"
       >
-        <CalendarX className="text-planora-muted size-14" aria-hidden />
-        <p className="max-w-md text-base text-gray-600">{emptyMessage}</p>
-        <Button type="button" variant="primary" onClick={() => router.push(routes.events)}>
-          Explore All Events
+        <div className="flex size-16 items-center justify-center rounded-2xl bg-planora-primary/10 dark:bg-planora-primary/20">
+          <CalendarX className="text-planora-primary size-9" aria-hidden />
+        </div>
+        <p className="max-w-md text-base leading-relaxed text-slate-600 dark:text-slate-300">{emptyMessage}</p>
+        <Button
+          type="button"
+          variant="primary"
+          className="motion-safe:transition motion-safe:duration-200 motion-safe:hover:scale-105 motion-safe:hover:shadow-glow-primary"
+          onClick={() => router.push(routes.events)}
+        >
+          Browse all events
         </Button>
       </div>
     );
   }
 
   return (
-    <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-label="Events list">
+    <ul
+      className="grid grid-cols-1 gap-6 gap-y-8 md:grid-cols-2 md:gap-8 lg:grid-cols-3"
+      aria-label="Events list"
+    >
       {events.map((event) => (
         <li key={event.id} className="flex justify-center">
           <EventCard event={event} variant="default" />

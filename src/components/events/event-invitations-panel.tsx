@@ -14,6 +14,11 @@ import { eventInvitationsListSchema, type EventInvitationRow } from '@/lib/schem
 import type { ApiResponse } from '@/types/api';
 import { formatDate } from '@/lib/utils';
 
+const theadClass =
+  'border-b border-slate-200/90 bg-slate-100/80 text-xs font-semibold uppercase text-slate-600 dark:border-white/10 dark:bg-slate-900/55 dark:text-slate-400';
+
+const tbodyClass = 'divide-y divide-slate-200/80 dark:divide-white/10';
+
 export interface EventInvitationsPanelProps {
   eventId: string;
 }
@@ -75,9 +80,12 @@ export function EventInvitationsPanel({ eventId }: EventInvitationsPanelProps) {
   }
 
   return (
-    <Card className="mt-8">
-      <CardTitle>Invitations</CardTitle>
-      <CardDescription>
+    <Card
+      variant="glass"
+      className="motion-safe:transition-shadow motion-safe:duration-300 motion-safe:hover:shadow-glow-primary"
+    >
+      <CardTitle className="gradient-text text-xl font-bold">Invitations</CardTitle>
+      <CardDescription className="text-slate-600 dark:text-slate-300">
         Private events use invitations. Paste a user&apos;s Planora ID (CUID from their profile URL or
         database seed).
       </CardDescription>
@@ -98,38 +106,43 @@ export function EventInvitationsPanel({ eventId }: EventInvitationsPanelProps) {
           </Button>
         </FormStack>
       </form>
-      <h3 className="mt-8 text-sm font-semibold text-slate-900">Sent invitations</h3>
+      <h3 className="mt-8 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        Sent invitations
+      </h3>
       {loading ? (
-        <p className="text-planora-muted mt-2 text-sm">Loading…</p>
+        <div className="mt-3 space-y-2">
+          <div className="bg-planora-muted/20 h-10 animate-pulse rounded-lg" />
+          <div className="bg-planora-muted/20 h-10 animate-pulse rounded-lg" />
+        </div>
       ) : rows.length === 0 ? (
         <p className="text-planora-muted mt-2 text-sm">No invitations yet.</p>
       ) : (
-        <DataTableShell className="mt-3">
+        <DataTableShell variant="glass" className="mt-3">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-planora-border bg-slate-50 text-xs font-semibold text-slate-600 uppercase">
+            <thead className={theadClass}>
               <tr>
-                <th scope="col" className="px-4 py-2">
+                <th scope="col" className="px-4 py-3">
                   Invitee
                 </th>
-                <th scope="col" className="px-4 py-2">
+                <th scope="col" className="px-4 py-3">
                   Status
                 </th>
-                <th scope="col" className="px-4 py-2">
+                <th scope="col" className="px-4 py-3">
                   Sent
                 </th>
-                <th scope="col" className="px-4 py-2">
+                <th scope="col" className="px-4 py-3">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-planora-border divide-y">
+            <tbody className={tbodyClass}>
               {rows.map((r) => (
-                <tr key={r.id}>
+                <tr key={r.id} className="bg-white/30 dark:bg-transparent">
                   <td className="px-4 py-2">
-                    <div className="font-medium text-slate-900">{r.invitee.name}</div>
+                    <div className="font-medium text-slate-900 dark:text-slate-100">{r.invitee.name}</div>
                     <div className="text-planora-muted text-xs">{r.invitee.email}</div>
                   </td>
-                  <td className="px-4 py-2 font-medium">{r.status}</td>
+                  <td className="px-4 py-2 font-medium text-slate-800 dark:text-slate-200">{r.status}</td>
                   <td className="text-planora-muted px-4 py-2 text-xs">
                     {formatDate(r.createdAt, undefined, {
                       month: 'short',

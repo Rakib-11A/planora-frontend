@@ -7,7 +7,7 @@ import { WorkspaceLoadingPill, WorkspacePageGradient } from '@/components/layout
 import { routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function MyEventsLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);

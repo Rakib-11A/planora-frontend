@@ -55,9 +55,11 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <Card>
-      <CardTitle>Set a new password</CardTitle>
-      <CardDescription>Use the 6-digit code sent to your email together with your new password.</CardDescription>
+    <Card variant="glass">
+      <CardTitle className="gradient-text text-xl font-bold tracking-tight">Set a new password</CardTitle>
+      <CardDescription className="text-slate-600 dark:text-slate-300">
+        Use the 6-digit code sent to your email together with your new password.
+      </CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
         <FormStack>
           <div>
@@ -114,8 +116,11 @@ export function ResetPasswordForm() {
           </Button>
         </FormStack>
       </form>
-      <p className="text-planora-muted mt-6 text-center text-sm">
-        <Link href={routes.login} className="text-planora-primary font-medium hover:underline">
+      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+        <Link
+          href={routes.login}
+          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+        >
           Back to sign in
         </Link>
       </p>

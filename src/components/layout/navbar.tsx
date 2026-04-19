@@ -113,7 +113,6 @@ export function Navbar() {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
-  const checkAuth = useAuthStore((s) => s.checkAuth);
   const logout = useAuthStore((s) => s.logout);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -122,8 +121,8 @@ export function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    void checkAuth();
-  }, [checkAuth]);
+    void useAuthStore.getState().checkAuth();
+  }, []);
 
   const onWindowScroll = useCallback(() => {
     setScrolled(window.scrollY > 50);

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
+import { Card, CardTitle } from '@/components/ui/card';
 import { routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { api, unwrapApiData } from '@/lib/api';
@@ -48,20 +49,25 @@ export function EventReviewsPanel({ eventId, initialReviews }: EventReviewsPanel
   }
 
   return (
-    <div className="border-planora-border rounded-lg border bg-white p-4">
-      <h2 className="text-lg font-semibold text-gray-900">Reviews</h2>
-      <ul className="mt-4 space-y-4">
+    <Card variant="glass">
+      <CardTitle className="gradient-text text-xl font-bold">Reviews</CardTitle>
+      <ul className="mt-5 space-y-4">
         {initialReviews.length === 0 ? (
-          <li className="text-sm text-gray-600">No reviews yet.</li>
+          <li className="text-sm text-slate-600 dark:text-slate-400">No reviews yet.</li>
         ) : (
           initialReviews.map((r) => (
-            <li key={r.id} className="border-planora-border border-b pb-3 last:border-0">
+            <li
+              key={r.id}
+              className="border-b border-slate-200/80 pb-4 last:border-0 dark:border-white/10"
+            >
               <div className="flex items-center justify-between gap-2">
-                <span className="font-medium text-gray-900">{r.user.name}</span>
-                <span className="text-sm text-gray-600">{r.rating}/5</span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100">{r.user.name}</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">{r.rating}/5</span>
               </div>
               <p className="text-planora-muted text-xs">{formatDate(r.createdAt)}</p>
-              {r.comment ? <p className="mt-1 text-sm text-gray-700">{r.comment}</p> : null}
+              {r.comment ? (
+                <p className="mt-1.5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{r.comment}</p>
+              ) : null}
             </li>
           ))
         )}
@@ -69,11 +75,13 @@ export function EventReviewsPanel({ eventId, initialReviews }: EventReviewsPanel
 
       {isAuthenticated ? (
         <form
-          className="border-planora-border mt-6 border-t pt-4"
+          className="mt-6 border-t border-white/50 pt-5 dark:border-white/10"
           onSubmit={(ev) => void submitReview(ev)}
         >
-          <h3 className="text-sm font-semibold text-gray-900">Write a review</h3>
-          <label className="mt-2 block text-sm text-gray-700">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Write a review
+          </h3>
+          <label className="mt-3 block text-sm text-slate-700 dark:text-slate-300">
             Rating (1–5)
             <input
               type="number"
@@ -81,26 +89,28 @@ export function EventReviewsPanel({ eventId, initialReviews }: EventReviewsPanel
               max={5}
               value={rating}
               onChange={(ev) => setRating(Number(ev.target.value))}
-              className="border-planora-border mt-1 block w-24 rounded-md border px-2 py-1"
+              className="mt-1.5 block w-24 rounded-xl border border-slate-200/90 bg-white/80 px-3 py-2 text-slate-900 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary dark:border-white/15 dark:bg-slate-900/60 dark:text-slate-100"
             />
           </label>
-          <label className="mt-2 block text-sm text-gray-700">
+          <label className="mt-3 block text-sm text-slate-700 dark:text-slate-300">
             Comment (optional)
             <textarea
               value={comment}
               onChange={(ev) => setComment(ev.target.value)}
               rows={3}
               maxLength={500}
-              className="border-planora-border mt-1 block w-full rounded-md border px-2 py-1"
+              className="mt-1.5 block w-full rounded-xl border border-slate-200/90 bg-white/80 px-3 py-2 text-slate-900 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary dark:border-white/15 dark:bg-slate-900/60 dark:text-slate-100"
             />
           </label>
-          <Button type="submit" variant="primary" className="mt-3" isLoading={submitting}>
+          <Button type="submit" variant="primary" className="mt-4" isLoading={submitting}>
             Submit review
           </Button>
         </form>
       ) : (
-        <p className="text-planora-muted mt-4 text-sm">Sign in to leave a review.</p>
+        <p className="text-planora-muted mt-5 border-t border-white/50 pt-5 text-sm dark:border-white/10">
+          Sign in to leave a review.
+        </p>
       )}
-    </div>
+    </Card>
   );
 }

@@ -86,8 +86,8 @@ export function EventParticipation({ eventId, isPaid, isPublic, eventFee }: Even
 
   if (!isAuthenticated) {
     return (
-      <Card>
-        <CardTitle>Participation</CardTitle>
+      <Card variant="glass">
+        <CardTitle className="gradient-text text-xl font-bold">Participation</CardTitle>
         <CardDescription>Sign in to join this event.</CardDescription>
         <Button type="button" variant="primary" className="mt-4" onClick={() => router.push(routes.login)}>
           Go to login
@@ -98,8 +98,8 @@ export function EventParticipation({ eventId, isPaid, isPublic, eventFee }: Even
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardTitle>Participation</CardTitle>
+      <Card variant="glass">
+        <CardTitle className="gradient-text text-xl font-bold">Participation</CardTitle>
         <CardDescription>
           {isPublic && !isPaid
             ? 'Public free events approve you immediately when you join.'

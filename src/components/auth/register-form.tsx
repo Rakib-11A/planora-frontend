@@ -42,9 +42,11 @@ export function RegisterForm() {
   }
 
   return (
-    <Card>
-      <CardTitle>Create account</CardTitle>
-      <CardDescription>8+ characters with upper, lower, and a number.</CardDescription>
+    <Card variant="glass">
+      <CardTitle className="gradient-text text-xl font-bold tracking-tight">Create account</CardTitle>
+      <CardDescription className="text-slate-600 dark:text-slate-300">
+        8+ characters with upper, lower, and a number.
+      </CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
         <FormStack>
           <div>
@@ -87,13 +89,19 @@ export function RegisterForm() {
           </Button>
         </FormStack>
       </form>
-      <p className="text-planora-muted mt-6 text-center text-sm">
+      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
         Already have an account?{' '}
-        <Link href={routes.login} className="text-planora-primary font-medium hover:underline">
+        <Link
+          href={routes.login}
+          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+        >
           Sign in
         </Link>
         {' · '}
-        <Link href={routes.verifyEmail} className="text-planora-primary font-medium hover:underline">
+        <Link
+          href={routes.verifyEmail}
+          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+        >
           Verify email
         </Link>
       </p>

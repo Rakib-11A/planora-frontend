@@ -7,12 +7,15 @@ import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
-import { PageHeader } from '@/components/ui/page-header';
+import { MarketingHero } from '@/components/ui/marketing-hero';
 import { routes } from '@/constants/config';
 import { api, unwrapApiData } from '@/lib/api';
 import { myInvitationsListSchema, type MyInvitation } from '@/lib/schemas/me';
 import type { ApiResponse } from '@/types/api';
 import { formatDate } from '@/lib/utils';
+
+const emptyGlass =
+  'rounded-2xl border border-dashed border-planora-primary/25 bg-white/40 backdrop-blur-sm dark:border-white/15 dark:bg-slate-900/40';
 
 export default function InvitationsPage() {
   const [items, setItems] = useState<MyInvitation[]>([]);
@@ -59,44 +62,65 @@ export default function InvitationsPage() {
   }
 
   return (
-    <div>
-      <PageHeader title="Invitations" description="Private event invites sent to you." />
-      {loading ? (
-        <p className="text-planora-muted text-sm">Loading…</p>
-      ) : items.length === 0 ? (
-        <EmptyState title="Inbox empty" description="When an organizer invites you, it will appear here." />
-      ) : (
-        <ul className="space-y-3">
-          {items.map((inv) => (
-            <li key={inv.id}>
-              <Card padding="sm" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <Link
-                    href={routes.event(inv.event.id)}
-                    className="text-planora-primary font-semibold hover:underline"
-                  >
-                    {inv.event.title}
-                  </Link>
-                  <p className="text-planora-muted text-xs">
-                    From {inv.inviter.name} · {formatDate(inv.createdAt)}
-                  </p>
-                  <p className="mt-1 text-sm font-medium text-slate-800">{inv.status}</p>
-                </div>
-                {inv.status === 'PENDING' ? (
-                  <div className="flex flex-wrap gap-2">
-                    <Button type="button" size="sm" variant="primary" onClick={() => void accept(inv.id)}>
-                      Accept
-                    </Button>
-                    <Button type="button" size="sm" variant="outline" onClick={() => void decline(inv.id)}>
-                      Decline
-                    </Button>
+    <div className="w-full">
+      <MarketingHero
+        className="mb-10"
+        eyebrow="Inbox"
+        sectionMaxWidthClass="max-w-5xl"
+        innerMaxWidthClass="max-w-3xl"
+        title="Invitations"
+        description="Private event invites sent to you."
+      />
+
+      <section className="rounded-3xl border border-white/35 bg-white/35 p-5 shadow-lifted backdrop-blur-md dark:border-white/10 dark:bg-slate-900/35 md:p-8">
+        {loading ? (
+          <div className="space-y-3">
+            <div className="bg-planora-muted/20 h-24 animate-pulse rounded-2xl" />
+            <div className="bg-planora-muted/20 h-24 animate-pulse rounded-2xl" />
+          </div>
+        ) : items.length === 0 ? (
+          <EmptyState
+            className={emptyGlass}
+            title="Inbox empty"
+            description="When an organizer invites you, it will appear here."
+          />
+        ) : (
+          <ul className="space-y-3">
+            {items.map((inv) => (
+              <li key={inv.id}>
+                <Card
+                  variant="glass"
+                  padding="sm"
+                  className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between motion-safe:transition-shadow motion-safe:duration-300 motion-safe:hover:shadow-glow-primary"
+                >
+                  <div>
+                    <Link
+                      href={routes.event(inv.event.id)}
+                      className="font-semibold text-planora-primary hover:underline dark:text-sky-300"
+                    >
+                      {inv.event.title}
+                    </Link>
+                    <p className="text-planora-muted text-xs">
+                      From {inv.inviter.name} · {formatDate(inv.createdAt)}
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-slate-800 dark:text-slate-200">{inv.status}</p>
                   </div>
-                ) : null}
-              </Card>
-            </li>
-          ))}
-        </ul>
-      )}
+                  {inv.status === 'PENDING' ? (
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" size="sm" variant="primary" onClick={() => void accept(inv.id)}>
+                        Accept
+                      </Button>
+                      <Button type="button" size="sm" variant="outline" onClick={() => void decline(inv.id)}>
+                        Decline
+                      </Button>
+                    </div>
+                  ) : null}
+                </Card>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

@@ -14,6 +14,7 @@ const adminNav = [
   { href: routes.admin, label: 'Overview' },
   { href: routes.adminUsers, label: 'Users' },
   { href: routes.adminEvents, label: 'Events' },
+  { href: routes.adminFeatured, label: 'Featured' },
   { href: routes.adminReviews, label: 'Reviews' },
   { href: routes.adminCache, label: 'Cache' },
   { href: routes.adminRateLimits, label: 'Rate limits' },

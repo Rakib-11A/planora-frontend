@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { EventInvitationsPanel } from '@/components/events/event-invitations-panel';
+import { EventOrganizerParticipantsPanel } from '@/components/events/event-organizer-participants-panel';
 import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
@@ -275,7 +276,8 @@ export function EditEventForm({ eventId }: EditEventFormProps) {
         </div>
 
         {isOwner ? (
-          <div className="mx-auto mt-10 max-w-2xl">
+          <div className="mx-auto mt-10 max-w-2xl space-y-10">
+            <EventOrganizerParticipantsPanel eventId={eventId} />
             <EventInvitationsPanel eventId={eventId} />
           </div>
         ) : null}

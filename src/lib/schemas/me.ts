@@ -43,6 +43,26 @@ export const myParticipationsResponseSchema = z.object({
 
 export type MyParticipationItem = z.infer<typeof myParticipationItemSchema>;
 
+export const eventParticipantRowSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  eventId: z.string(),
+  status: participationStatusSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+    avatar: z.string().nullable(),
+    role: z.string(),
+  }),
+});
+
+export const eventParticipantsListSchema = z.array(eventParticipantRowSchema);
+
+export type EventParticipantRow = z.infer<typeof eventParticipantRowSchema>;
+
 export const invitationStatusSchema = z.enum(['PENDING', 'ACCEPTED', 'DECLINED', 'CANCELLED']);
 
 export const myInvitationSchema = z.object({

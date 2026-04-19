@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { WorkspaceAppSidebar } from '@/components/layout/workspace-app-sidebar';
 import { WorkspaceLoadingPill, WorkspacePageGradient } from '@/components/layout/workspace-atmosphere';
 import { routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
@@ -49,7 +50,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="relative min-h-[calc(100vh-8rem)] overflow-hidden pb-16">
       <WorkspacePageGradient />
-      <div className="relative z-[1] mx-auto max-w-5xl px-4 py-10 sm:px-6">{children}</div>
+      <div className="relative z-[1] mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+          <WorkspaceAppSidebar />
+          <div className="min-w-0 flex-1">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }

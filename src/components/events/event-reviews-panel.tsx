@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
@@ -15,15 +15,31 @@ import { formatDate } from '@/lib/utils';
 
 export interface EventReviewsPanelProps {
   eventId: string;
+  /** Event start time (ISO) — used to show edit-window hint alongside server enforcement. */
+  eventStartIso: string;
   initialReviews: EventReviewItem[];
 }
 
-export function EventReviewsPanel({ eventId, initialReviews }: EventReviewsPanelProps) {
+export function EventReviewsPanel({ eventId, eventStartIso, initialReviews }: EventReviewsPanelProps) {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editRating, setEditRating] = useState(5);
+  const [editComment, setEditComment] = useState('');
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const editHint = useMemo(() => {
+    const start = new Date(eventStartIso).getTime();
+    if (Number.isNaN(start)) return '';
+    const hours = Number(process.env.NEXT_PUBLIC_REVIEW_EDIT_WINDOW_HOURS ?? '336');
+    const safe = Number.isFinite(hours) && hours > 0 ? hours : 336;
+    const end = start + safe * 60 * 60 * 1000;
+    return `Authors may edit or delete until ${formatDate(end)}.`;
+  }, [eventStartIso]);
 
   async function submitReview(e: React.FormEvent) {
     e.preventDefault();
@@ -48,9 +64,52 @@ export function EventReviewsPanel({ eventId, initialReviews }: EventReviewsPanel
     }
   }
 
+  function startEdit(r: EventReviewItem) {
+    setEditingId(r.id);
+    setEditRating(r.rating);
+    setEditComment(r.comment ?? '');
+  }
+
+  async function saveEdit() {
+    if (!editingId) return;
+    setBusyId(editingId);
+    try {
+      const body = {
+        rating: editRating,
+        comment: editComment.trim().length > 0 ? editComment.trim() : undefined,
+      };
+      const res = (await api.patch(`events/${eventId}/reviews`, body)) as ApiResponse<unknown>;
+      unwrapApiData(res);
+      toast.success('Review updated.');
+      setEditingId(null);
+      router.refresh();
+    } catch {
+      toast.error('Could not update review. The edit period may have ended.');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function removeMine() {
+    if (!window.confirm('Remove your review for this event?')) return;
+    setBusyId('delete');
+    try {
+      const res = (await api.delete(`events/${eventId}/reviews`)) as ApiResponse<unknown>;
+      unwrapApiData(res);
+      toast.success('Review removed.');
+      setEditingId(null);
+      router.refresh();
+    } catch {
+      toast.error('Could not delete review. The edit period may have ended.');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <Card variant="glass">
       <CardTitle className="gradient-text text-xl font-bold">Reviews</CardTitle>
+      {editHint ? <p className="text-planora-muted mt-2 text-xs">{editHint}</p> : null}
       <ul className="mt-5 space-y-4">
         {initialReviews.length === 0 ? (
           <li className="text-sm text-slate-600 dark:text-slate-400">No reviews yet.</li>
@@ -67,6 +126,53 @@ export function EventReviewsPanel({ eventId, initialReviews }: EventReviewsPanel
               <p className="text-planora-muted text-xs">{formatDate(r.createdAt)}</p>
               {r.comment ? (
                 <p className="mt-1.5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">{r.comment}</p>
+              ) : null}
+              {user && r.userId === user.id ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {editingId === r.id ? (
+                    <>
+                      <label className="text-planora-muted text-xs">
+                        Rating
+                        <input
+                          type="number"
+                          min={1}
+                          max={5}
+                          value={editRating}
+                          onChange={(e) => setEditRating(Number(e.target.value))}
+                          className="ml-2 w-16 rounded-lg border border-white/40 bg-white/70 px-2 py-1 text-slate-900 dark:bg-slate-900/60 dark:text-slate-100"
+                        />
+                      </label>
+                      <textarea
+                        value={editComment}
+                        onChange={(e) => setEditComment(e.target.value)}
+                        rows={2}
+                        maxLength={500}
+                        className="min-w-[200px] flex-1 rounded-xl border border-white/40 bg-white/70 px-3 py-2 text-sm text-slate-900 dark:bg-slate-900/60 dark:text-slate-100"
+                      />
+                      <Button type="button" size="sm" variant="primary" isLoading={busyId === r.id} onClick={() => void saveEdit()}>
+                        Save
+                      </Button>
+                      <Button type="button" size="sm" variant="outline" onClick={() => setEditingId(null)}>
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button type="button" size="sm" variant="outline" onClick={() => startEdit(r)}>
+                        Edit
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="danger"
+                        isLoading={busyId === 'delete'}
+                        onClick={() => void removeMine()}
+                      >
+                        Delete
+                      </Button>
+                    </>
+                  )}
+                </div>
               ) : null}
             </li>
           ))

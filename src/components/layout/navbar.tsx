@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
+  MessageSquareText,
   Settings,
   Shield,
   Ticket,
@@ -15,7 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Logo } from '@/components/layout/logo';
 import { NotificationBell } from '@/components/layout/notification-bell';
@@ -24,13 +25,6 @@ import { routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { UserRole } from '@/types/user';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { href: routes.home, label: 'Home' },
-  { href: routes.events, label: 'Events' },
-  { href: routes.about, label: 'About' },
-  { href: routes.contact, label: 'Contact' },
-] as const;
 
 function isActivePath(pathname: string, href: string): boolean {
   if (href === routes.home) return pathname === routes.home;
@@ -115,6 +109,17 @@ export function Navbar() {
   const isLoading = useAuthStore((s) => s.isLoading);
   const logout = useAuthStore((s) => s.logout);
 
+  const primaryNav = useMemo(() => {
+    const items: { href: string; label: string }[] = [
+      { href: routes.home, label: 'Home' },
+      { href: routes.events, label: 'Events' },
+    ];
+    if (isAuthenticated && user) {
+      items.push({ href: routes.dashboard, label: 'Dashboard' });
+    }
+    return items;
+  }, [isAuthenticated, user]);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -175,6 +180,12 @@ export function Navbar() {
     { href: routes.profile, label: 'Profile', icon: User, match: (p) => isActivePath(p, routes.profile) },
     { href: routes.participations, label: 'Participations', icon: Users, match: (p) => isActivePath(p, routes.participations) },
     { href: routes.invitations, label: 'Invitations', icon: Mail, match: (p) => isActivePath(p, routes.invitations) },
+    {
+      href: routes.reviews,
+      label: 'My reviews',
+      icon: MessageSquareText,
+      match: (p) => isActivePath(p, routes.reviews),
+    },
     { href: routes.payments, label: 'Payments', icon: CreditCard, match: (p) => isActivePath(p, routes.payments) },
     { href: routes.notifications, label: 'Notifications', icon: Bell, match: (p) => isActivePath(p, routes.notifications) },
     { href: routes.changePassword, label: 'Change password', icon: Settings, match: (p) => isActivePath(p, routes.changePassword) },
@@ -247,7 +258,7 @@ export function Navbar() {
           <Logo size="sm" variant="gradient" className="shrink-0" />
 
           <div className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex">
-            {navItems.map((item) => (
+            {primaryNav.map((item) => (
               <DesktopPillLink
                 key={item.href}
                 href={item.href}
@@ -438,7 +449,7 @@ export function Navbar() {
           </button>
         </div>
         <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 pb-8">
-          {navItems.map((item) => (
+          {primaryNav.map((item) => (
             <MobileNavCard
               key={item.href}
               href={item.href}
@@ -447,6 +458,25 @@ export function Navbar() {
               onNavigate={closeMobile}
             />
           ))}
+          <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3">
+            <Link
+              href={routes.about}
+              onClick={closeMobile}
+              className="text-xs font-semibold text-white/70 underline-offset-2 hover:text-white hover:underline"
+            >
+              About
+            </Link>
+            <span className="text-white/30" aria-hidden>
+              ·
+            </span>
+            <Link
+              href={routes.contact}
+              onClick={closeMobile}
+              className="text-xs font-semibold text-white/70 underline-offset-2 hover:text-white hover:underline"
+            >
+              Contact
+            </Link>
+          </div>
           <div className="mt-4 border-t border-white/10 pt-4">
             {isLoading ? (
               <div className="h-10 w-full animate-pulse rounded-2xl bg-white/10" aria-hidden />

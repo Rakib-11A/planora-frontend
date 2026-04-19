@@ -10,10 +10,7 @@ import type { EventWithType } from '@/types/event';
 const UPCOMING_LIMIT = 9;
 const BROWSE_LIMIT = 30;
 
-/**
- * TODO: Backend does not expose `GET /events/featured` yet. This call will fail until
- * the route exists — we catch and return null, then fall back to the first public event.
- */
+/** Hero prefers `GET /api/events/featured` (admin-curated public event); if unset, uses the first upcoming public listing. */
 export default async function Home() {
   // Sequential fetches ease backend rate limits during dev (HMR / Strict Mode bursts).
   const publicBrowse = await fetchPublicEventsForHome(BROWSE_LIMIT);

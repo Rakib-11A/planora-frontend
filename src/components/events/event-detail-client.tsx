@@ -161,7 +161,11 @@ export function EventDetailClient({ event, initialReviews }: EventDetailClientPr
             </div>
 
             <div className="mt-8">
-              <EventReviewsPanel eventId={event.id} initialReviews={initialReviews} />
+              <EventReviewsPanel
+                eventId={event.id}
+                eventStartIso={event.dateTime}
+                initialReviews={initialReviews}
+              />
             </div>
           </section>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { startTransition, useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -18,6 +19,7 @@ const emptyGlass =
   'rounded-2xl border border-dashed border-planora-primary/25 bg-white/40 backdrop-blur-sm dark:border-white/15 dark:bg-slate-900/40';
 
 export default function InvitationsPage() {
+  const router = useRouter();
   const [items, setItems] = useState<MyInvitation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,6 +48,17 @@ export default function InvitationsPage() {
       await api.post(`invitations/${id}/accept`);
       toast.success('Invitation accepted.');
       await load();
+    } catch {
+      toast.error('Could not accept.');
+    }
+  }
+
+  async function payAndAccept(id: string, eventId: string) {
+    try {
+      await api.post(`invitations/${id}/accept`);
+      toast.success('Invitation accepted. Continue to payment on the event page.');
+      await load();
+      router.push(`${routes.event(eventId)}?pay=1`);
     } catch {
       toast.error('Could not accept.');
     }
@@ -107,9 +120,20 @@ export default function InvitationsPage() {
                   </div>
                   {inv.status === 'PENDING' ? (
                     <div className="flex flex-wrap gap-2">
-                      <Button type="button" size="sm" variant="primary" onClick={() => void accept(inv.id)}>
-                        Accept
-                      </Button>
+                      {inv.event.isPaid ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="primary"
+                          onClick={() => void payAndAccept(inv.id, inv.event.id)}
+                        >
+                          Pay & accept
+                        </Button>
+                      ) : (
+                        <Button type="button" size="sm" variant="primary" onClick={() => void accept(inv.id)}>
+                          Accept
+                        </Button>
+                      )}
                       <Button type="button" size="sm" variant="outline" onClick={() => void decline(inv.id)}>
                         Decline
                       </Button>

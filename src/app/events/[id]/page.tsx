@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { EventDetailClient } from '@/components/events/event-detail-client';
+import { EventPayScrollHandler } from '@/components/events/event-pay-scroll-handler';
 import { fetchEventById } from '@/lib/events';
 import { fetchEventReviews } from '@/lib/reviews';
 
@@ -23,5 +25,12 @@ export default async function EventDetailPage({ params }: PageProps) {
     console.error('[events] reviews fetch failed', err);
   }
 
-  return <EventDetailClient event={event} initialReviews={initialReviews} />;
+  return (
+    <>
+      <Suspense fallback={null}>
+        <EventPayScrollHandler />
+      </Suspense>
+      <EventDetailClient event={event} initialReviews={initialReviews} />
+    </>
+  );
 }

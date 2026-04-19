@@ -1,7 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useId, useState, type FormEvent } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -19,24 +19,35 @@ export interface EventsPageSearchProps {
  */
 export function EventsPageSearch({ defaultQuery = '' }: EventsPageSearchProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const inputId = useId();
   const [query, setQuery] = useState(defaultQuery);
+
+  function buildListUrl(searchValue: string): string {
+    const params = new URLSearchParams(searchParams.toString());
+    if (searchValue.length > 0) {
+      params.set('search', searchValue);
+    } else {
+      params.delete('search');
+    }
+    const qs = params.toString();
+    return qs.length > 0 ? `${routes.events}?${qs}` : routes.events;
+  }
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const q = query.trim();
-    const url = q.length > 0 ? `${routes.events}?search=${encodeURIComponent(q)}` : routes.events;
-    router.push(url);
+    router.push(buildListUrl(q));
   }
 
   function applyQuick(term: string) {
     setQuery(term);
-    router.push(`${routes.events}?search=${encodeURIComponent(term)}`);
+    router.push(buildListUrl(term));
   }
 
   return (
     <div className="mx-auto mt-8 w-full max-w-2xl">
-      <form onSubmit={onSubmit} role="search" aria-label="Search public events on this page">
+      <form onSubmit={onSubmit} role="search" aria-label="Search events on this page">
         <div className="glass-effect flex flex-wrap items-center gap-2 rounded-full border border-white/40 px-2 py-2 shadow-lifted backdrop-blur-xl dark:border-white/15 sm:flex-nowrap">
           <Search
             className="text-planora-primary pointer-events-none ml-2 size-5 shrink-0 sm:ml-3"
@@ -64,7 +75,7 @@ export function EventsPageSearch({ defaultQuery = '' }: EventsPageSearchProps) {
                 'peer-[:not(:placeholder-shown)]:top-2 peer-[:not(:placeholder-shown)]:-translate-y-0 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:text-xs'
               )}
             >
-              Search by title, venue, or keyword
+              Search title or organizer
             </label>
           </div>
           <Button

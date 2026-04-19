@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { EventsGrid } from '@/components/events/events-grid';
@@ -9,6 +10,7 @@ import {
   CategoryFilter,
   type CategoryFilterId,
 } from '@/components/home/category-filter';
+import { routes } from '@/constants/config';
 import type { EventWithType } from '@/types/event';
 
 export interface EventCategoriesSectionProps {
@@ -23,6 +25,32 @@ function getRegistrationFee(event: EventWithType): number {
 
 function isCategoryFilterId(id: string): id is CategoryFilterId {
   return (CATEGORY_FILTER_IDS as readonly string[]).includes(id);
+}
+
+function eventsPageHrefForCategory(id: CategoryFilterId): string {
+  if (id === 'all') return routes.events;
+  const params = new URLSearchParams();
+  switch (id) {
+    case 'public-free':
+      params.set('isPublic', 'true');
+      params.set('isPaid', 'false');
+      break;
+    case 'public-paid':
+      params.set('isPublic', 'true');
+      params.set('isPaid', 'true');
+      break;
+    case 'private-free':
+      params.set('isPublic', 'false');
+      params.set('isPaid', 'false');
+      break;
+    case 'private-paid':
+      params.set('isPublic', 'false');
+      params.set('isPaid', 'true');
+      break;
+    default:
+      return routes.events;
+  }
+  return `${routes.events}?${params.toString()}`;
 }
 
 function applyFilter(category: CategoryFilterId, source: EventWithType[]): EventWithType[] {
@@ -101,6 +129,25 @@ export function EventCategoriesSection({ events }: EventCategoriesSectionProps) 
       <div className="mt-2">
         <CategoryFilter activeCategory={activeCategory} onCategoryChange={handleCategoryChange} />
       </div>
+      <p className="text-planora-muted mx-auto mt-4 max-w-2xl text-center text-sm">
+        Same filters on the{' '}
+        <Link href={routes.events} className="font-semibold text-planora-primary underline dark:text-sky-300">
+          Events
+        </Link>{' '}
+        page (with search & sign-in for private lists):{' '}
+        {CATEGORY_FILTER_IDS.filter((id) => id !== 'all').map((id, i) => (
+          <span key={id}>
+            {i > 0 ? ' · ' : null}
+            <Link
+              href={eventsPageHrefForCategory(id)}
+              className="font-medium text-planora-primary underline-offset-2 hover:underline dark:text-sky-300"
+            >
+              {id.replace(/-/g, ' ')}
+            </Link>
+          </span>
+        ))}
+        .
+      </p>
       <div className="mt-10">
         <EventsGrid
           events={filteredEvents}

@@ -6,12 +6,14 @@ import { cn } from '@/lib/utils';
 export interface EventsPageToolbarProps {
   count: number;
   activeSearch: string;
+  /** Short label for active filter preset (e.g. Public free). */
+  activePreset?: string;
 }
 
 /**
  * Server-friendly strip above the grid: result count, clear search, short hint.
  */
-export function EventsPageToolbar({ count, activeSearch }: EventsPageToolbarProps) {
+export function EventsPageToolbar({ count, activeSearch, activePreset }: EventsPageToolbarProps) {
   const hasQuery = activeSearch.length > 0;
 
   return (
@@ -32,6 +34,11 @@ export function EventsPageToolbar({ count, activeSearch }: EventsPageToolbarProp
           >
             Clear search
           </Link>
+        ) : null}
+        {activePreset ? (
+          <span className="text-planora-muted text-xs font-semibold uppercase tracking-wide">
+            Filter: {activePreset}
+          </span>
         ) : null}
       </div>
       <p className="text-sm text-slate-500 dark:text-slate-400">

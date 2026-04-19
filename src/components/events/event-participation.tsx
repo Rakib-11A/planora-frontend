@@ -56,6 +56,13 @@ export function EventParticipation({ eventId, isPaid, isPublic, eventFee }: Even
     });
   }, [loadMine]);
 
+  const joinCtaLabel = (() => {
+    if (isPublic && !isPaid) return 'Join';
+    if (isPublic && isPaid) return 'Pay & join';
+    if (!isPublic && !isPaid) return 'Request to join';
+    return 'Pay & request';
+  })();
+
   async function join() {
     setBusy(true);
     try {
@@ -103,16 +110,18 @@ export function EventParticipation({ eventId, isPaid, isPublic, eventFee }: Even
         <CardDescription>
           {isPublic && !isPaid
             ? 'Public free events approve you immediately when you join.'
-            : isPaid
-              ? 'Join to register, then complete payment while your participation is pending.'
-              : 'Request to join; organizers approve private events.'}
+            : isPublic && isPaid
+              ? 'Register first, then complete checkout. Paid public registrations stay pending until the host approves.'
+              : !isPublic && !isPaid
+                ? 'Organizers approve private free events after you request access.'
+                : 'Register and pay while pending; the host still approves private paid registrations.'}
         </CardDescription>
         {loadingMine ? (
           <p className="text-planora-muted mt-4 text-sm">Checking your registration…</p>
         ) : !mine ? (
           <div className="mt-4">
             <Button type="button" variant="primary" isLoading={busy} onClick={() => void join()}>
-              Join event
+              {joinCtaLabel}
             </Button>
           </div>
         ) : (

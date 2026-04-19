@@ -15,6 +15,7 @@ export async function fetchEventsList(params: {
   page?: number;
   limit?: number;
   isPublic?: boolean;
+  isPaid?: boolean;
   search?: string;
 }): Promise<PaginatedResponse<EventWithType>> {
   const page = params.page ?? 1;
@@ -25,6 +26,9 @@ export async function fetchEventsList(params: {
   });
   if (params.isPublic !== undefined) {
     search.set('isPublic', String(params.isPublic));
+  }
+  if (params.isPaid !== undefined) {
+    search.set('isPaid', String(params.isPaid));
   }
   if (params.search?.trim()) {
     search.set('search', params.search.trim());

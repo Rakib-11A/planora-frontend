@@ -283,8 +283,6 @@ export function Navbar() {
           </div>
         </div>
       </aside>
-
-      <div className="h-16" aria-hidden />
     </>
   );
 }

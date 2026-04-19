@@ -4,7 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
+import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { FormStack } from '@/components/ui/form-stack';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { routes } from '@/constants/config';
 import { api, unwrapApiData } from '@/lib/api';
 import type { ApiResponse } from '@/types/api';
@@ -58,80 +64,94 @@ export function CreateEventForm() {
   }
 
   return (
-    <form
-      onSubmit={(ev) => void onSubmit(ev)}
-      className="max-w-xl space-y-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
-    >
-      <h1 className="text-2xl font-bold text-gray-900">Create event</h1>
-      <label className="block text-sm font-medium text-gray-700">
-        Title
-        <input
-          required
-          maxLength={150}
-          value={title}
-          onChange={(ev) => setTitle(ev.target.value)}
-          className="border-planora-border mt-1 block w-full rounded-md border px-3 py-2"
-        />
-      </label>
-      <label className="block text-sm font-medium text-gray-700">
-        Description
-        <textarea
-          required
-          maxLength={5000}
-          rows={4}
-          value={description}
-          onChange={(ev) => setDescription(ev.target.value)}
-          className="border-planora-border mt-1 block w-full rounded-md border px-3 py-2"
-        />
-      </label>
-      <label className="block text-sm font-medium text-gray-700">
-        Starts at (local)
-        <input
-          type="datetime-local"
-          required
-          value={dateTimeLocal}
-          onChange={(ev) => setDateTimeLocal(ev.target.value)}
-          className="border-planora-border mt-1 block w-full rounded-md border px-3 py-2"
-        />
-      </label>
-      <label className="block text-sm font-medium text-gray-700">
-        Venue
-        <input
-          required
-          maxLength={300}
-          value={venue}
-          onChange={(ev) => setVenue(ev.target.value)}
-          className="border-planora-border mt-1 block w-full rounded-md border px-3 py-2"
-        />
-      </label>
-      <label className="flex items-center gap-2 text-sm text-gray-700">
-        <input
-          type="checkbox"
-          checked={isPublic}
-          onChange={(ev) => setIsPublic(ev.target.checked)}
-        />
-        Public listing
-      </label>
-      <label className="flex items-center gap-2 text-sm text-gray-700">
-        <input type="checkbox" checked={isPaid} onChange={(ev) => setIsPaid(ev.target.checked)} />
-        Paid event
-      </label>
-      {isPaid ? (
-        <label className="block text-sm font-medium text-gray-700">
-          Fee (USD)
-          <input
-            type="number"
-            min={0.01}
-            step={0.01}
-            value={fee}
-            onChange={(ev) => setFee(ev.target.value)}
-            className="border-planora-border mt-1 block w-full rounded-md border px-3 py-2"
-          />
-        </label>
-      ) : null}
-      <Button type="submit" variant="primary" isLoading={loading}>
-        Create
-      </Button>
-    </form>
+    <div className="max-w-xl">
+      <Breadcrumbs
+        items={[
+          { href: routes.dashboard, label: 'Dashboard' },
+          { href: routes.createEvent, label: 'Create event' },
+        ]}
+      />
+      <Card>
+        <h1 className="text-2xl font-bold text-slate-900">Create event</h1>
+        <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
+          <FormStack>
+            <div>
+              <Label htmlFor="create-title">Title</Label>
+              <Input
+                id="create-title"
+                className="mt-1"
+                required
+                maxLength={150}
+                value={title}
+                onChange={(ev) => setTitle(ev.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="create-desc">Description</Label>
+              <Textarea
+                id="create-desc"
+                className="mt-1"
+                required
+                maxLength={5000}
+                rows={4}
+                value={description}
+                onChange={(ev) => setDescription(ev.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="create-dt">Starts at (local)</Label>
+              <Input
+                id="create-dt"
+                className="mt-1"
+                type="datetime-local"
+                required
+                value={dateTimeLocal}
+                onChange={(ev) => setDateTimeLocal(ev.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="create-venue">Venue</Label>
+              <Input
+                id="create-venue"
+                className="mt-1"
+                required
+                maxLength={300}
+                value={venue}
+                onChange={(ev) => setVenue(ev.target.value)}
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={isPublic}
+                onChange={(ev) => setIsPublic(ev.target.checked)}
+              />
+              Public listing
+            </label>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={isPaid} onChange={(ev) => setIsPaid(ev.target.checked)} />
+              Paid event
+            </label>
+            {isPaid ? (
+              <div>
+                <Label htmlFor="create-fee">Fee (BDT)</Label>
+                <Input
+                  id="create-fee"
+                  className="mt-1"
+                  type="number"
+                  min={0.01}
+                  step={0.01}
+                  value={fee}
+                  onChange={(ev) => setFee(ev.target.value)}
+                />
+              </div>
+            ) : null}
+            <Button type="submit" variant="primary" isLoading={loading}>
+              Create
+            </Button>
+          </FormStack>
+        </form>
+      </Card>
+    </div>
   );
 }

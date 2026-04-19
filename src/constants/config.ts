@@ -49,6 +49,7 @@ export const routes = {
   event: (id: string) => `/events/${id}`,
   about: '/about',
   dashboard: '/dashboard',
+  createEvent: '/dashboard/create-event',
   myEvents: '/my-events',
   profile: '/profile',
   contact: '/contact',

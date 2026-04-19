@@ -31,6 +31,9 @@ export interface EventCreator {
  * Event fields as returned by the API (`EventSafe` + aggregates).
  * `fee` may arrive as a string (decimal JSON) or number depending on serialization.
  * `dateTime` is an ISO string over the wire.
+ *
+ * Optional aliases may appear as the API evolves; UI should fall back to `dateTime`,
+ * `createdBy`, and `venue` when these are absent.
  */
 export interface Event {
   id: string;
@@ -48,6 +51,9 @@ export interface Event {
   totalReviews: number;
   participationCount: number;
   createdBy: EventCreator;
+  startDateTime?: string;
+  organizer?: EventCreator;
+  location?: string | null;
 }
 
 export interface EventWithType extends Event {

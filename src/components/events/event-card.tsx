@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, MapPin, User } from 'lucide-react';
+import { Calendar, Clock, MapPin, User } from 'lucide-react';
 import Link from 'next/link';
 
 import { routes } from '@/constants/config';
@@ -15,22 +15,35 @@ export interface EventCardProps {
   showActions?: boolean;
 }
 
-function numericFee(fee: string | number): number {
-  const n = typeof fee === 'number' ? fee : Number(fee);
+/** Matches `Button` primary + md size for footer CTA (Button is not polymorphic). */
+const linkButtonPrimaryClass =
+  'inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary bg-planora-primary text-white hover:bg-planora-primary/90';
+
+function getStartDateTime(event: EventWithType): string {
+  return event.startDateTime ?? event.dateTime;
+}
+
+function getOrganizerName(event: EventWithType): string {
+  return event.organizer?.name ?? event.createdBy?.name ?? 'Unknown';
+}
+
+function getLocationLabel(event: EventWithType): string {
+  const raw = (event.location ?? event.venue ?? '').trim();
+  return raw.length > 0 ? raw : 'Online';
+}
+
+function getRegistrationFee(event: EventWithType): number {
+  const n = typeof event.fee === 'number' ? event.fee : Number(event.fee);
   return Number.isFinite(n) ? n : 0;
 }
 
-function isFreeEvent(event: EventWithType): boolean {
-  if (!event.isPaid) return true;
-  return numericFee(event.fee) <= 0;
-}
-
 function feeBadgeContent(event: EventWithType): { label: string; className: string } {
-  if (isFreeEvent(event)) {
+  const fee = getRegistrationFee(event);
+  if (fee === 0) {
     return { label: 'FREE', className: 'bg-green-100 text-green-800' };
   }
   return {
-    label: formatCurrency(numericFee(event.fee)),
+    label: formatCurrency(fee),
     className: 'bg-blue-100 text-blue-800',
   };
 }
@@ -42,14 +55,14 @@ function typeBadge(event: EventWithType): { label: string; className: string } {
   return { label: 'PRIVATE', className: 'bg-purple-100 text-purple-800' };
 }
 
-const viewDetailsClass =
-  'mt-4 inline-flex items-center justify-center rounded-md border-2 border-planora-primary px-4 py-2 text-sm font-medium text-planora-primary transition-colors group-hover:bg-planora-primary/10';
-
 export function EventCard({ event, variant = 'default', showActions = false }: EventCardProps) {
+  const start = getStartDateTime(event);
   const feeBadge = feeBadgeContent(event);
   const visibilityBadge = typeBadge(event);
-  const organizerName = event.createdBy?.name ?? 'Unknown';
-  const ariaLabel = `View event: ${event.title}, ${formatDate(event.dateTime)}`;
+  const organizerName = getOrganizerName(event);
+  const locationLabel = getLocationLabel(event);
+
+  const cardAriaLabel = `View event: ${event.title}, ${formatDate(start)}`;
 
   const heroHeight = variant === 'featured' ? 'h-64' : variant === 'compact' ? 'h-32' : 'h-48';
 
@@ -57,8 +70,17 @@ export function EventCard({ event, variant = 'default', showActions = false }: E
     ? 'bg-gradient-to-br from-planora-primary to-planora-secondary'
     : 'bg-gradient-to-br from-purple-500 to-pink-500';
 
+  const shellClass = cn(
+    'group w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md transition-shadow hover:shadow-lg',
+    variant === 'default' && 'max-w-sm',
+    variant === 'compact' && 'max-w-xs',
+    !showActions && 'cursor-pointer'
+  );
+
   const hero = (
     <div
+      role="img"
+      aria-label="Event image placeholder"
       className={cn(
         'relative flex shrink-0 items-center justify-center overflow-hidden rounded-t-lg md:rounded-l-lg md:rounded-tr-none',
         heroHeight,
@@ -67,7 +89,6 @@ export function EventCard({ event, variant = 'default', showActions = false }: E
         variant !== 'featured' && 'rounded-t-lg',
         variant === 'compact' && 'rounded-t-lg'
       )}
-      aria-hidden
     >
       <Calendar className="size-12 text-white/90 drop-shadow-sm" aria-hidden />
     </div>
@@ -97,34 +118,44 @@ export function EventCard({ event, variant = 'default', showActions = false }: E
         variant === 'featured' && 'text-sm'
       )}
     >
-      <p className={cn('text-foreground font-medium', variant === 'compact' && 'text-sm')}>
-        {formatDate(event.dateTime, undefined, {
-          weekday: variant === 'compact' ? undefined : 'short',
-          year: 'numeric',
-          month: variant === 'compact' ? 'numeric' : 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-        })}
+      <p
+        className={cn(
+          'text-foreground flex items-center gap-2 font-medium',
+          variant === 'compact' && 'text-sm'
+        )}
+      >
+        <Clock className="text-planora-primary size-4 shrink-0" aria-hidden />
+        <span>
+          {formatDate(start, undefined, {
+            weekday: variant === 'compact' ? undefined : 'short',
+            year: 'numeric',
+            month: variant === 'compact' ? 'numeric' : 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+          })}
+        </span>
       </p>
       {variant !== 'compact' ? (
         <p className="flex items-start gap-2 text-sm">
           <MapPin className="text-planora-primary mt-0.5 size-4 shrink-0" aria-hidden />
-          <span className="line-clamp-2">{event.venue}</span>
+          <span className="line-clamp-2">{locationLabel}</span>
         </p>
       ) : null}
-      <p className="flex items-center gap-2 text-sm">
-        <User className="text-planora-primary size-4 shrink-0" aria-hidden />
-        <span className="truncate">{organizerName}</span>
-      </p>
+      {variant !== 'compact' ? (
+        <p className="flex items-center gap-2 text-sm">
+          <User className="text-planora-primary size-4 shrink-0" aria-hidden />
+          <span className="truncate">{organizerName}</span>
+        </p>
+      ) : null}
     </div>
   );
 
   const titleClass = cn(
-    'font-semibold text-foreground',
+    'line-clamp-2 font-semibold text-foreground',
     variant === 'featured' && 'text-xl md:text-2xl',
     variant === 'default' && 'text-lg',
-    variant === 'compact' && 'text-base line-clamp-2'
+    variant === 'compact' && 'text-base'
   );
 
   const body = (
@@ -139,16 +170,9 @@ export function EventCard({ event, variant = 'default', showActions = false }: E
       <div className="mt-3">{metaBlock}</div>
       <div className="mt-3">{badges}</div>
       {variant === 'featured' ? (
-        <p className="mt-3 line-clamp-3 text-sm text-gray-600">{event.description}</p>
-      ) : null}
-      <span className={cn(viewDetailsClass, variant === 'compact' && 'mt-2 py-1.5 text-xs')}>
-        View Details
-      </span>
-      {showActions ? (
-        <div
-          className="border-planora-border bg-planora-surface/50 mt-3 min-h-[2.5rem] rounded-md border border-dashed"
-          aria-label="Event actions"
-        />
+        <p className="mt-3 text-sm leading-relaxed break-words text-gray-600">
+          {event.description}
+        </p>
       ) : null}
     </div>
   );
@@ -157,7 +181,7 @@ export function EventCard({ event, variant = 'default', showActions = false }: E
     variant === 'featured' ? (
       <div className="grid grid-cols-1 md:grid-cols-2 md:gap-0">
         <div className="min-w-0">{hero}</div>
-        <div className="border-planora-border min-w-0 md:border-l">{body}</div>
+        <div className="min-w-0 border-gray-200 md:border-l">{body}</div>
       </div>
     ) : (
       <div className="flex min-w-0 flex-col">
@@ -166,15 +190,32 @@ export function EventCard({ event, variant = 'default', showActions = false }: E
       </div>
     );
 
+  const footer = showActions ? (
+    <footer className="border-t border-gray-200 px-4 pb-4">
+      <Link
+        href={routes.event(event.id)}
+        className={linkButtonPrimaryClass}
+        aria-label={`View details for ${event.title}`}
+      >
+        View Details
+      </Link>
+    </footer>
+  ) : null;
+
+  if (showActions) {
+    return (
+      <article className={shellClass}>
+        {inner}
+        {footer}
+      </article>
+    );
+  }
+
   return (
     <Link
       href={routes.event(event.id)}
-      aria-label={ariaLabel}
-      className={cn(
-        'group border-planora-border block w-full overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-lg',
-        variant === 'default' && 'max-w-sm',
-        variant === 'compact' && 'max-w-xs'
-      )}
+      aria-label={cardAriaLabel}
+      className={cn(shellClass, 'block')}
     >
       {inner}
     </Link>

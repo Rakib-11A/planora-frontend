@@ -1,18 +1,28 @@
-const missingPublicEnv = (name: string): never => {
-  throw new Error(
-    `Missing ${name}. Add it to .env.local (see NEXT_PUBLIC_* in the Planora frontend README or scaffold).`
-  );
+/**
+ * When `NEXT_PUBLIC_*` vars are unset in development, these defaults keep the app
+ * runnable (e.g. fresh clones without `.env.local`). Override in `.env.local` for
+ * your machine.
+ */
+const devDefaults: Record<string, string> = {
+  NEXT_PUBLIC_API_URL: 'http://localhost:5000/api',
+  NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
 };
 
 const readPublicEnv = (name: string): string => {
   const value = process.env[name];
-  if (!value || value.length === 0) {
-    if (process.env.NODE_ENV === 'development') {
-      missingPublicEnv(name);
-    }
-    return '';
+  if (value && value.length > 0) {
+    return value;
   }
-  return value;
+  if (process.env.NODE_ENV === 'development') {
+    const fallback = devDefaults[name];
+    if (fallback !== undefined) {
+      console.warn(
+        `[planora] ${name} is not set; using development default "${fallback}". Add it to .env.local to override.`
+      );
+      return fallback;
+    }
+  }
+  return '';
 };
 
 /** Base URL for the Planora API (includes `/api` path segment). */
@@ -37,5 +47,11 @@ export const routes = {
   register: '/register',
   events: '/events',
   event: (id: string) => `/events/${id}`,
+  about: '/about',
+  dashboard: '/dashboard',
+  myEvents: '/my-events',
   profile: '/profile',
+  contact: '/contact',
+  privacy: '/privacy',
+  terms: '/terms',
 } as const;

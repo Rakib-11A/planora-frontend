@@ -37,5 +37,8 @@ export const routes = {
   register: '/register',
   events: '/events',
   event: (id: string) => `/events/${id}`,
+  about: '/about',
+  dashboard: '/dashboard',
+  myEvents: '/my-events',
   profile: '/profile',
 } as const;

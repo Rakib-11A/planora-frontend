@@ -1,6 +1,8 @@
 import { CtaSection } from '@/components/home/cta-section';
 import { EventCategoriesSection } from '@/components/home/event-categories-section';
 import { HeroSection } from '@/components/home/hero-section';
+import { HomeScrollChrome } from '@/components/home/home-scroll-chrome';
+import { RevealSection } from '@/components/home/reveal-section';
 import { UpcomingEventsSection } from '@/components/home/upcoming-events-section';
 import { fetchFeaturedEvent, fetchPublicEventsForHome } from '@/lib/events';
 import type { EventWithType } from '@/types/event';
@@ -23,11 +25,19 @@ export default async function Home() {
     featuredFromApi ?? (publicBrowse.length > 0 ? (publicBrowse[0] ?? null) : null);
 
   return (
-    <div className="flex flex-col">
-      <HeroSection featuredEvent={featuredEvent} />
-      <UpcomingEventsSection events={upcomingEvents} />
-      <EventCategoriesSection events={publicBrowse} />
-      <CtaSection />
-    </div>
+    <HomeScrollChrome>
+      <div className="flex flex-col">
+        <HeroSection featuredEvent={featuredEvent} />
+        <RevealSection variant="white">
+          <UpcomingEventsSection events={upcomingEvents} />
+        </RevealSection>
+        <RevealSection variant="muted">
+          <EventCategoriesSection events={publicBrowse} />
+        </RevealSection>
+        <RevealSection variant="gradient">
+          <CtaSection />
+        </RevealSection>
+      </div>
+    </HomeScrollChrome>
   );
 }

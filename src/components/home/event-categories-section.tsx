@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { EventsGrid } from '@/components/events/events-grid';
+import { SectionHeading } from '@/components/home/section-heading';
 import {
   CATEGORY_FILTER_IDS,
   CategoryFilter,
@@ -91,20 +92,22 @@ export function EventCategoriesSection({ events }: EventCategoriesSectionProps) 
   }, []);
 
   return (
-    <section className="bg-planora-surface/50 px-4 py-16">
-      <div className="mx-auto max-w-7xl">
-        <h2 className="text-planora-primary text-2xl font-bold md:text-3xl">Browse by Category</h2>
-        <div className="mt-6">
-          <CategoryFilter activeCategory={activeCategory} onCategoryChange={handleCategoryChange} />
-        </div>
-        <div className="mt-10">
-          <EventsGrid
-            events={filteredEvents}
-            isLoading={isLoading}
-            emptyMessage="No events match this category. Try another filter or browse all public events."
-          />
-        </div>
+    <div className="mx-auto max-w-7xl px-0">
+      <SectionHeading
+        title="Browse by Category"
+        subtitle="Filter public events by type, then explore the full grid."
+        align="center"
+      />
+      <div className="mt-2">
+        <CategoryFilter activeCategory={activeCategory} onCategoryChange={handleCategoryChange} />
       </div>
-    </section>
+      <div className="mt-10">
+        <EventsGrid
+          events={filteredEvents}
+          isLoading={isLoading}
+          emptyMessage="No events match this category. Try another filter or browse all public events."
+        />
+      </div>
+    </div>
   );
 }

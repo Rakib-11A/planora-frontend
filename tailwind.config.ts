@@ -29,6 +29,7 @@ const config: Config = {
           primary: 'rgba(79, 70, 229, 0.3)',
           secondary: 'rgba(14, 165, 233, 0.3)',
           accent: 'rgba(245, 158, 11, 0.28)',
+          rose: 'rgba(236, 72, 153, 0.22)',
         },
         /** Brand gradient stops: indigo → sky → amber. */
         gradient: {
@@ -52,6 +53,9 @@ const config: Config = {
         'glow-primary': '0 0 20px rgba(79, 70, 229, 0.35)',
         'glow-secondary': '0 0 20px rgba(14, 165, 233, 0.28)',
         lifted: '0 20px 40px -12px rgba(0, 0, 0, 0.12)',
+        'lifted-lg': '0 24px 48px -10px rgba(0, 0, 0, 0.18)',
+        'depth-soft':
+          '0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06)',
         pressed: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
       },
       backdropBlur: {
@@ -81,12 +85,23 @@ const config: Config = {
           '0%, 100%': { boxShadow: '0 0 20px rgba(79, 70, 229, 0.35)' },
           '50%': { boxShadow: '0 0 36px rgba(79, 70, 229, 0.55)' },
         },
+        blobFloat: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '33%': { transform: 'translate(12px, -18px) scale(1.03)' },
+          '66%': { transform: 'translate(-10px, 10px) scale(0.97)' },
+        },
+        menuDown: {
+          '0%': { opacity: '0', transform: 'translateY(-6px) scale(0.98)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',
         'slide-up': 'slideUp 0.4s ease-out',
         'scale-in': 'scaleIn 0.3s ease-out',
         'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+        'blob-float': 'blobFloat 18s ease-in-out infinite',
+        'menu-down': 'menuDown 0.22s ease-out both',
       },
     },
   },

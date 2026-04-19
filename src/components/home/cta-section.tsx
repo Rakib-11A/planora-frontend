@@ -19,7 +19,7 @@ const linkBtnOutline =
  */
 export function CtaSection() {
   return (
-    <section className="px-4 py-16">
+    <section className="mx-auto max-w-6xl px-4 py-6 md:py-8">
       <Card
         padding="none"
         className={cn(

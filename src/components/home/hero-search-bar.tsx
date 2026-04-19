@@ -27,7 +27,7 @@ export function HeroSearchBar() {
       role="search"
       aria-label="Search public events"
     >
-      <div className="glass-effect relative flex flex-wrap items-center gap-2 rounded-full border border-white/30 px-2 py-2 shadow-glass backdrop-blur-xl sm:flex-nowrap dark:border-white/10">
+      <div className="glass-effect relative flex flex-wrap items-center gap-2 rounded-full border border-white/30 px-2 py-2 shadow-glass backdrop-blur-xl transition-[box-shadow,transform,border-color] duration-300 focus-within:border-planora-primary/40 focus-within:shadow-glow-primary/40 focus-within:ring-2 focus-within:ring-planora-primary/25 sm:flex-nowrap dark:border-white/10 dark:focus-within:border-sky-400/35">
         <Search
           className="text-planora-primary pointer-events-none ml-2 size-5 shrink-0 opacity-90 sm:ml-3"
           aria-hidden

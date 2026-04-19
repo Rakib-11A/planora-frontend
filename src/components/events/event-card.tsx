@@ -43,7 +43,7 @@ function feeBadgeContent(event: EventWithType): { label: string; className: stri
     return { label: 'FREE', className: 'bg-green-100 text-green-800' };
   }
   return {
-    label: formatCurrency(fee),
+    label: formatCurrency(fee, 'BDT', 'en-BD'),
     className: 'bg-blue-100 text-blue-800',
   };
 }

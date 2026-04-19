@@ -1,4 +1,6 @@
 import { EventsGrid } from '@/components/events/events-grid';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageShell } from '@/components/ui/page-shell';
 import { fetchEventsList } from '@/lib/events';
 
 export default async function EventsPage() {
@@ -11,14 +13,12 @@ export default async function EventsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10">
-      <h1 className="text-planora-primary text-3xl font-bold">Public Events</h1>
-      <p className="text-planora-muted mt-2 text-sm">
-        Browse upcoming public events. Sign in to join or create your own.
-      </p>
-      <div className="mt-8">
-        <EventsGrid events={items} emptyMessage="No public events are available right now." />
-      </div>
-    </div>
+    <PageShell size="full">
+      <PageHeader
+        title="Public events"
+        description="Browse upcoming public listings. Sign in to join or create your own."
+      />
+      <EventsGrid events={items} emptyMessage="No public events are available right now." />
+    </PageShell>
   );
 }

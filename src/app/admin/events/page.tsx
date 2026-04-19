@@ -97,23 +97,19 @@ export default function AdminEventsPage() {
                     {ev.deletedAt ? ' · DELETED' : ''}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    <Link
-                      href={routes.event(ev.id)}
-                      className="text-planora-primary inline-block text-sm font-medium hover:underline"
-                    >
-                      View
-                    </Link>
-                    {ev.deletedAt ? null : (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="danger"
-                        className="ml-2"
-                        onClick={() => void removeEvent(ev.id)}
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <Link
+                        href={routes.event(ev.id)}
+                        className="text-planora-primary text-sm font-medium hover:underline"
                       >
-                        Delete
-                      </Button>
-                    )}
+                        View
+                      </Link>
+                      {ev.deletedAt ? null : (
+                        <Button type="button" size="sm" variant="danger" onClick={() => void removeEvent(ev.id)}>
+                          Delete
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

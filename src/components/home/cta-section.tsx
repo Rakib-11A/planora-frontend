@@ -1,6 +1,7 @@
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
+import { Card } from '@/components/ui/card';
 import { routes } from '@/constants/config';
 import { cn } from '@/lib/utils';
 
@@ -19,9 +20,9 @@ const linkBtnOutline =
 export function CtaSection() {
   return (
     <section className="px-4 py-16">
-      <div
+      <Card
         className={cn(
-          'from-planora-secondary/20 to-planora-accent/20 mx-auto max-w-5xl rounded-2xl bg-gradient-to-r px-6 py-12 shadow-sm md:px-12 md:py-16'
+          'from-planora-secondary/15 to-planora-accent/15 mx-auto max-w-5xl border-0 bg-gradient-to-r shadow-md md:px-8 md:py-4'
         )}
       >
         <div className="grid grid-cols-1 items-center gap-10 text-center md:grid-cols-2 md:gap-12 md:text-left">
@@ -48,7 +49,7 @@ export function CtaSection() {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </section>
   );
 }

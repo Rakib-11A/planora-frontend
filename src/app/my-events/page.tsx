@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
+import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageShell } from '@/components/ui/page-shell';
 import { routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { fetchMyEventsList } from '@/lib/events';
@@ -47,53 +52,77 @@ export default function MyEventsPage() {
   }, [isAuthenticated, isLoadingAuth, router]);
 
   if (isLoadingAuth || loading) {
-    return <p className="text-planora-muted px-4 py-10 text-sm">Loading…</p>;
+    return (
+      <PageShell>
+        <p className="text-planora-muted text-sm">Loading…</p>
+      </PageShell>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-gray-900">My events</h1>
-        <Button type="button" variant="primary" onClick={() => router.push(routes.createEvent)}>
-          Create event
-        </Button>
-      </div>
+    <PageShell>
+      <Breadcrumbs
+        items={[
+          { href: routes.dashboard, label: 'Dashboard' },
+          { href: routes.myEvents, label: 'My events' },
+        ]}
+      />
+      <PageHeader
+        title="My events"
+        description="Events you created and manage on Planora."
+        actions={
+          <Button type="button" variant="primary" onClick={() => router.push(routes.createEvent)}>
+            Create event
+          </Button>
+        }
+      />
       {items.length === 0 ? (
-        <p className="text-planora-muted mt-6 text-sm">You have not created any events yet.</p>
+        <EmptyState
+          title="No events yet"
+          description="Create your first event to see it in this list."
+          action={
+            <Button type="button" variant="primary" onClick={() => router.push(routes.createEvent)}>
+              Create event
+            </Button>
+          }
+        />
       ) : (
-        <ul className="mt-8 space-y-3">
+        <ul className="space-y-3">
           {items.map((ev) => (
-            <li
-              key={ev.id}
-              className="border-planora-border flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-white px-4 py-3"
-            >
-              <div>
+            <li key={ev.id}>
+              <Card padding="sm" className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <Link
+                    href={routes.event(ev.id)}
+                    className="text-planora-primary font-semibold hover:underline"
+                  >
+                    {ev.title}
+                  </Link>
+                  <p className="text-planora-muted text-xs">
+                    {formatDate(ev.dateTime, undefined, {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
                 <Link
-                  href={routes.event(ev.id)}
-                  className="text-planora-primary font-medium hover:underline"
+                  href={routes.editEvent(ev.id)}
+                  className="text-sm font-medium text-slate-700 hover:text-planora-primary hover:underline"
                 >
-                  {ev.title}
+                  Edit
                 </Link>
-                <p className="text-planora-muted text-xs">
-                  {formatDate(ev.dateTime, undefined, {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
-                </p>
-              </div>
-              <Link
-                href={routes.editEvent(ev.id)}
-                className="hover:text-planora-primary text-sm font-medium text-gray-700 hover:underline"
-              >
-                Edit
-              </Link>
+              </Card>
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </PageShell>
   );
 }

@@ -61,20 +61,33 @@ export const useAuthStore = create<AuthStore>((set) => ({
           return;
         }
 
-        const envelope = (await api.get('auth/me')) as ApiResponse<User>;
-        set(withAuthUser(unwrapApiData(envelope)));
+        const loadMe = async () => {
+          const envelope = (await api.get('auth/me')) as ApiResponse<User>;
+          set(withAuthUser(unwrapApiData(envelope)));
+        };
+        await loadMe();
       } catch (err) {
         if (isAxiosError(err) && err.response?.status === 429) {
           checkAuthCooldownUntil = Date.now() + 4000;
           if (process.env.NODE_ENV === 'development') {
             console.warn(
-              '[useAuthStore] checkAuth rate limited; clearing token and backing off to stop request loops'
+              '[useAuthStore] checkAuth rate limited; backing off without clearing session (token + refresh cookie kept)'
             );
           }
-          if (typeof window !== 'undefined') {
-            window.localStorage.removeItem(TOKEN_KEY);
+          // One delayed retry — avoids false "logged out" on dev StrictMode / burst mounts.
+          const stillHasToken =
+            typeof window !== 'undefined' && window.localStorage.getItem(TOKEN_KEY) !== null;
+          if (stillHasToken) {
+            await new Promise<void>((resolve) => {
+              setTimeout(() => resolve(), 1200);
+            });
+            try {
+              const envelope = (await api.get('auth/me')) as ApiResponse<User>;
+              set(withAuthUser(unwrapApiData(envelope)));
+            } catch {
+              // keep token; user state unknown until next navigation triggers checkAuth again
+            }
           }
-          set(withAuthUser(null));
           return;
         }
         if (isAxiosError(err) && err.response?.status === 503) {

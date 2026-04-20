@@ -57,6 +57,35 @@ const refreshClient = axios.create({
   withCredentials: true,
 });
 
+/**
+ * Single in-flight refresh so concurrent 401s (multi-tab / parallel requests) do not
+ * rotate the refresh cookie twice and invalidate each other.
+ */
+let refreshAccessTokenPromise: Promise<string> | null = null;
+
+function getRefreshedAccessToken(): Promise<string> {
+  if (refreshAccessTokenPromise !== null) {
+    return refreshAccessTokenPromise;
+  }
+
+  refreshAccessTokenPromise = refreshClient
+    .post<ApiResponse<{ accessToken: string }>>('auth/refresh-token')
+    .then((res) => {
+      const envelope = res.data;
+      const token = envelope?.data?.accessToken;
+      if (typeof token !== 'string' || token === '') {
+        throw new Error('Refresh response missing accessToken');
+      }
+      persistAccessToken(token);
+      return token;
+    })
+    .finally(() => {
+      refreshAccessTokenPromise = null;
+    });
+
+  return refreshAccessTokenPromise;
+}
+
 export const api: AxiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
@@ -118,11 +147,8 @@ api.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      const refreshResponse =
-        await refreshClient.post<ApiResponse<{ accessToken: string }>>('auth/refresh-token');
-      const envelope = refreshResponse.data;
-      persistAccessToken(envelope.data.accessToken);
-      originalRequest.headers.Authorization = `Bearer ${envelope.data.accessToken}`;
+      const newAccess = await getRefreshedAccessToken();
+      originalRequest.headers.Authorization = `Bearer ${newAccess}`;
       return api.request(originalRequest);
     } catch (refreshError) {
       clearSession();

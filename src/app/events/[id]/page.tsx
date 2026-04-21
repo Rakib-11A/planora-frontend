@@ -12,6 +12,12 @@ interface PageProps {
 
 export default async function EventDetailPage({ params }: PageProps) {
   const { id } = await params;
+  // #region agent log
+  fetch('http://127.0.0.1:7530/ingest/f1827538-6564-4331-b43b-32c165d17185',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'50d2c1'},body:JSON.stringify({sessionId:'50d2c1',runId:'pre-fix',hypothesisId:'H4',location:'src/app/events/[id]/page.tsx:entry',message:'EventDetailPage render start',data:{id},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+  // #region agent log
+  console.error('[debug-50d2c1][H4] EventDetailPage entry', { id });
+  // #endregion
   const event = await fetchEventById(id);
   if (!event) {
     notFound();

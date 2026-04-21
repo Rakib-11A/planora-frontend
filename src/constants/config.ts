@@ -4,6 +4,7 @@
  * your machine.
  */
 const devDefaults: Record<string, string> = {
+  NEXT_PUBLIC_API_BASE_URL: 'http://localhost:5000',
   NEXT_PUBLIC_API_URL: 'http://localhost:5000/api',
   NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
 };
@@ -25,8 +26,25 @@ const readPublicEnv = (name: string): string => {
   return '';
 };
 
-/** Base URL for the Planora API (includes `/api` path segment). */
-export const API_URL = readPublicEnv('NEXT_PUBLIC_API_URL');
+function trimTrailingSlash(value: string): string {
+  return value.endsWith('/') ? value.slice(0, -1) : value;
+}
+
+function normalizeApiUrl(value: string): string {
+  const trimmed = trimTrailingSlash(value.trim());
+  if (trimmed === '') {
+    // Safe production fallback for same-origin Nginx proxy routing.
+    return '/api';
+  }
+  if (trimmed === '/api') return '/api';
+  if (trimmed.endsWith('/api')) return trimmed;
+  return `${trimmed}/api`;
+}
+
+/** Base URL for the Planora API; supports host base or direct `/api` path. */
+export const API_URL = normalizeApiUrl(
+  readPublicEnv('NEXT_PUBLIC_API_URL') || readPublicEnv('NEXT_PUBLIC_API_BASE_URL')
+);
 
 /** Public site URL for links and redirects. */
 export const APP_URL = readPublicEnv('NEXT_PUBLIC_APP_URL');

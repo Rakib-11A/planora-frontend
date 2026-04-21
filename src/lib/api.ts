@@ -6,7 +6,7 @@ import axios, {
 } from 'axios';
 import toast from 'react-hot-toast';
 
-import { API_URL, TOKEN_KEY, routes } from '@/constants/config';
+import { API_URL, APP_URL, TOKEN_KEY, routes } from '@/constants/config';
 import type { ApiErrorBody, ApiResponse } from '@/types/api';
 
 /** `react-hot-toast` is client-only; avoid calling it during RSC / SSR fetches. */
@@ -49,9 +49,32 @@ function clearSession(): void {
   window.localStorage.removeItem(TOKEN_KEY);
 }
 
+function trimTrailingSlash(value: string): string {
+  return value.endsWith('/') ? value.slice(0, -1) : value;
+}
+
+/**
+ * Browser can use relative `/api`; server-side Axios needs an absolute URL.
+ */
+function resolveAxiosBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return API_URL;
+  }
+  if (!API_URL.startsWith('/')) {
+    return API_URL;
+  }
+  const appOrigin = trimTrailingSlash(APP_URL);
+  if (appOrigin === '') {
+    return API_URL;
+  }
+  return `${appOrigin}${API_URL}`;
+}
+
+const AXIOS_BASE_URL = resolveAxiosBaseUrl();
+
 /** Bare client for refresh — avoids running the main `api` response interceptor. */
 const refreshClient = axios.create({
-  baseURL: API_URL,
+  baseURL: AXIOS_BASE_URL,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
@@ -87,7 +110,7 @@ function getRefreshedAccessToken(): Promise<string> {
 }
 
 export const api: AxiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: AXIOS_BASE_URL,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,

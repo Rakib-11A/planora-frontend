@@ -90,12 +90,26 @@ export const useAuthStore = create<AuthStore>((set) => ({
           }
           return;
         }
-        if (isAxiosError(err) && err.response?.status === 503) {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('[useAuthStore] checkAuth service unavailable; keeping token, retry later');
+        // Transient: server unreachable (no response) or 5xx / timeout. Do NOT treat as
+        // session loss — api.ts has already handled true auth failures (401 + failed refresh)
+        // by clearing the token and redirecting to /login. If we got here with a non-401
+        // response or no response at all, the token is still valid; a backend restart or
+        // network blip should not log the user out.
+        if (isAxiosError(err)) {
+          const status = err.response?.status;
+          const isNetworkError = err.response === undefined;
+          const isServerError = typeof status === 'number' && status >= 500;
+          if (isNetworkError || isServerError) {
+            if (process.env.NODE_ENV === 'development') {
+              console.warn(
+                `[useAuthStore] checkAuth transient failure (${isNetworkError ? 'network' : String(status)}); keeping session`
+              );
+            }
+            return;
           }
-          return;
         }
+        // At this point the error is an unambiguous auth failure (typically 401 that api.ts
+        // already cleaned up) — mirror the cleared session in store state.
         if (typeof window !== 'undefined') {
           window.localStorage.removeItem(TOKEN_KEY);
         }

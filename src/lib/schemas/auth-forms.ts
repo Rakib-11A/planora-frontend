@@ -43,6 +43,25 @@ export const resetPasswordFormSchema = z
     message: 'Passwords do not match',
   });
 
+export const updateProfileFormSchema = z
+  .object({
+    name: z
+      .string({ required_error: 'Name is required' })
+      .trim()
+      .min(2, { message: 'Name must be at least 2 characters' })
+      .max(50, { message: 'Name must be at most 50 characters' }),
+    avatar: z
+      .string()
+      .trim()
+      .max(2048, { message: 'Avatar URL is too long' })
+      .url({ message: 'Avatar must be a valid URL' })
+      .or(z.literal(''))
+      .optional(),
+  })
+  .strict();
+
+export type UpdateProfileFormValues = z.infer<typeof updateProfileFormSchema>;
+
 export const changePasswordFormSchema = z
   .object({
     currentPassword: z.string().min(1, { message: 'Current password is required' }),

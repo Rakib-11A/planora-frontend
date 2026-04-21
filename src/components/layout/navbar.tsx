@@ -21,6 +21,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Logo } from '@/components/layout/logo';
 import { NotificationBell } from '@/components/layout/notification-bell';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { UserRole } from '@/types/user';
@@ -269,6 +270,7 @@ export function Navbar() {
           </div>
 
           <div className="hidden shrink-0 items-center gap-2 md:flex">
+            <ThemeToggle />
             <NotificationBell />
             {isLoading ? (
               <div className="bg-planora-border/80 h-9 w-36 animate-pulse rounded-full" aria-hidden />
@@ -380,6 +382,7 @@ export function Navbar() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2 md:hidden">
+            <ThemeToggle />
             <NotificationBell />
             <button
               type="button"

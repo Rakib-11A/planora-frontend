@@ -8,15 +8,19 @@ export interface DataTableShellProps extends ComponentPropsWithoutRef<'div'> {
   variant?: DataTableShellVariant;
 }
 
-/** Horizontal scroll wrapper for wide tables on small screens. */
+/**
+ * DataTableShell — horizontal-scroll wrapper for wide tables on small screens.
+ * Default variant is theme-reactive (semantic tokens). Glass variant is
+ * retained for legacy marketing surfaces.
+ */
 export function DataTableShell({ className, variant = 'default', ...rest }: DataTableShellProps) {
   return (
     <div
       className={cn(
         'overflow-x-auto',
         variant === 'glass'
-          ? 'rounded-2xl border border-white/35 bg-white/50 shadow-lifted backdrop-blur-md dark:border-white/10 dark:bg-slate-900/50'
-          : 'border-planora-border rounded-lg border bg-white shadow-sm',
+          ? 'rounded-xl border border-white/35 bg-white/50 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-slate-900/50'
+          : 'bg-surface border-border rounded-lg border shadow-sm',
         className
       )}
       {...rest}

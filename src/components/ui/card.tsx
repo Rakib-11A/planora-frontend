@@ -2,6 +2,13 @@ import { type ComponentPropsWithoutRef } from 'react';
 
 import { cn } from '@/lib/utils';
 
+/**
+ * Card — content container primitive.
+ *
+ * `default` is a clean surface card on semantic tokens — reacts to light/dark.
+ * `glass` is retained for legacy marketing chrome (hero, CTA). New screens
+ * should prefer `default`.
+ */
 export type CardVariant = 'default' | 'glass';
 
 export interface CardProps extends ComponentPropsWithoutRef<'div'> {
@@ -22,11 +29,14 @@ export function Card({ className, padding = 'default', variant = 'default', ...r
       className={cn(
         variant === 'glass'
           ? cn(
-              'rounded-3xl border border-white/35 bg-white/60 shadow-lifted shadow-depth-soft backdrop-blur-xl',
-              'dark:border-white/15 dark:bg-slate-900/55',
-              'motion-safe:transition-shadow motion-safe:duration-300 motion-safe:hover:shadow-glow-primary'
+              // Legacy glass — intentionally hardcoded white/slate for marketing aesthetics.
+              'rounded-xl border border-white/35 bg-white/60 shadow-lg backdrop-blur-xl',
+              'dark:border-white/15 dark:bg-slate-900/55'
             )
-          : cn('border-planora-border rounded-lg border bg-white shadow-sm'),
+          : cn(
+              // Semantic default — theme-reactive.
+              'bg-surface text-foreground border-border rounded-lg border shadow-sm'
+            ),
         paddingMap[padding],
         className
       )}
@@ -36,9 +46,9 @@ export function Card({ className, padding = 'default', variant = 'default', ...r
 }
 
 export function CardTitle({ className, ...rest }: ComponentPropsWithoutRef<'h2'>) {
-  return <h2 className={cn('text-lg font-semibold text-slate-900', className)} {...rest} />;
+  return <h2 className={cn('text-foreground text-lg font-semibold', className)} {...rest} />;
 }
 
 export function CardDescription({ className, ...rest }: ComponentPropsWithoutRef<'p'>) {
-  return <p className={cn('text-planora-muted mt-1 text-sm', className)} {...rest} />;
+  return <p className={cn('text-muted mt-1 text-sm', className)} {...rest} />;
 }

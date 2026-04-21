@@ -8,6 +8,8 @@ const devDefaults: Record<string, string> = {
   NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
 };
 
+const devWarnedMissing = new Set<string>();
+
 const readPublicEnv = (name: string): string => {
   const value = process.env[name];
   if (value && value.length > 0) {
@@ -16,9 +18,12 @@ const readPublicEnv = (name: string): string => {
   if (process.env.NODE_ENV === 'development') {
     const fallback = devDefaults[name];
     if (fallback !== undefined) {
-      console.warn(
-        `[planora] ${name} is not set; using development default "${fallback}". Add it to .env.local to override.`
-      );
+      if (!devWarnedMissing.has(name)) {
+        devWarnedMissing.add(name);
+        console.warn(
+          `[planora] ${name} is not set; using development default "${fallback}". Add it to .env.local to override.`
+        );
+      }
       return fallback;
     }
   }
@@ -61,7 +66,10 @@ export const routes = {
   reviews: '/reviews',
   invitations: '/invitations',
   payments: '/payments',
+  /** Gateway / mock return + manual confirm (public). */
+  paymentReturn: '/payment-return',
   notifications: '/notifications',
+  notificationSettings: '/notification-settings',
   admin: '/admin',
   adminUsers: '/admin/users',
   adminEvents: '/admin/events',

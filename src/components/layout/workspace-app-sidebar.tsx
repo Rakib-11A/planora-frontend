@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Bell,
+  BellRing,
   CalendarRange,
   CreditCard,
   Inbox,
@@ -26,6 +27,7 @@ const links = [
   { href: routes.payments, label: 'Payments', icon: CreditCard },
   { href: routes.profile, label: 'Profile', icon: UserCircle },
   { href: routes.notifications, label: 'Notifications', icon: Bell },
+  { href: routes.notificationSettings, label: 'Notification settings', icon: BellRing },
   { href: routes.changePassword, label: 'Settings', icon: KeyRound },
 ] as const;
 

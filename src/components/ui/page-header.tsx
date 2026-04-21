@@ -9,6 +9,10 @@ export interface PageHeaderProps {
   className?: string;
 }
 
+/**
+ * PageHeader — standard page title + description + optional action slot.
+ * Title is `text-3xl` / `text-2xl` responsive per Stripe-docs conventions.
+ */
 export function PageHeader({ title, description, actions, className }: PageHeaderProps) {
   return (
     <header
@@ -18,11 +22,11 @@ export function PageHeader({ title, description, actions, className }: PageHeade
       )}
     >
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
+        <h1 className="text-foreground text-2xl font-semibold tracking-tight sm:text-3xl">
+          {title}
+        </h1>
         {description ? (
-          <p className="text-planora-muted mt-2 max-w-2xl text-sm leading-relaxed">
-            {description}
-          </p>
+          <p className="text-muted mt-2 max-w-2xl text-sm leading-relaxed">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}

@@ -1,56 +1,60 @@
-import { Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-import { Card } from '@/components/ui/card';
+import { buttonVariants } from '@/components/ui/button';
 import { routes } from '@/constants/config';
 import { cn } from '@/lib/utils';
 
-const linkBtnBase =
-  'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-planora-primary focus-visible:ring-offset-2';
-
-const linkBtnPrimary = 'bg-planora-primary text-white hover:bg-planora-primary/90';
-
-const linkBtnOutline =
-  'border-2 border-planora-primary bg-transparent text-planora-primary hover:bg-planora-primary/10';
-
 /**
- * Static homepage CTA. Uses `Link` with button styling so navigation works from a
- * Server Component (the `Button` component is client-only and uses `<button>`).
+ * Closing CTA band.
+ *
+ * Single centered headline + short supporting line + two CTAs. No decorative
+ * icon, no gradient-fill card. A thin surface card with a subtle radial wash
+ * provides a closing gesture without competing with the hero.
  */
 export function CtaSection() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-6 md:py-8">
-      <Card
-        padding="none"
+    <section className="mx-auto max-w-5xl px-4 py-4 md:py-8">
+      <div
         className={cn(
-          'from-planora-secondary/15 to-planora-accent/15 mx-auto max-w-5xl border-0 bg-gradient-to-r shadow-md'
+          'bg-surface border-border relative isolate overflow-hidden rounded-xl border shadow-sm',
+          'px-6 py-16 text-center sm:px-10 md:py-20'
         )}
       >
-        <div className="grid grid-cols-1 items-center gap-10 px-6 py-12 text-center md:grid-cols-2 md:gap-12 md:px-12 md:py-16 md:text-left">
-          <div className="flex justify-center md:justify-start">
-            <Sparkles
-              className="text-planora-primary size-20 drop-shadow-sm md:size-28"
-              aria-hidden
-            />
-          </div>
-          <div className="flex flex-col items-center md:items-start">
-            <h2 className="text-planora-primary text-3xl font-bold tracking-tight md:text-4xl">
-              Ready to Get Started?
-            </h2>
-            <p className="mt-3 max-w-lg text-base text-gray-700 md:text-lg">
-              Create your own event or join thousands of others
-            </p>
-            <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center md:justify-start">
-              <Link href={routes.createEvent} className={cn(linkBtnBase, linkBtnPrimary)}>
-                Create Event
-              </Link>
-              <Link href={routes.events} className={cn(linkBtnBase, linkBtnOutline)}>
-                Browse Events
-              </Link>
-            </div>
-          </div>
+        {/* Subtle corner wash — doesn't compete with the hero. */}
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-0 -z-10',
+            'bg-[radial-gradient(40rem_20rem_at_50%_0%,rgba(79,70,229,0.08),transparent_70%)]',
+            'dark:bg-[radial-gradient(40rem_20rem_at_50%_0%,rgba(99,102,241,0.16),transparent_70%)]'
+          )}
+          aria-hidden
+        />
+
+        <h2 className="text-foreground text-3xl font-semibold tracking-tight sm:text-4xl">
+          Ready to host your next event?
+        </h2>
+        <p className="text-muted mx-auto mt-4 max-w-xl text-base leading-relaxed">
+          Create an event in under a minute. Invite your guests. Sell tickets if
+          you need to. That&apos;s it.
+        </p>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href={routes.createEvent}
+            className={buttonVariants({ variant: 'primary', size: 'lg', className: 'px-6' })}
+          >
+            Create an event
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
+          <Link
+            href={routes.events}
+            className={buttonVariants({ variant: 'outline', size: 'lg' })}
+          >
+            Browse events
+          </Link>
         </div>
-      </Card>
+      </div>
     </section>
   );
 }

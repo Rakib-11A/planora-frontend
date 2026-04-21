@@ -11,6 +11,20 @@ import { initiatePaymentResponseSchema } from '@/lib/schemas/me';
 import type { ApiResponse } from '@/types/api';
 import { formatCurrency } from '@/lib/utils';
 
+function navigateToCheckout(paymentUrl: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const target = new URL(paymentUrl, window.location.origin);
+    if (target.origin === window.location.origin) {
+      window.location.assign(target.toString());
+      return;
+    }
+  } catch {
+    // non-absolute URL
+  }
+  window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+}
+
 export interface EventPayBlockProps {
   eventId: string;
   fee: number;
@@ -32,8 +46,10 @@ export function EventPayBlock({ eventId, fee }: EventPayBlockProps) {
       }
       const { paymentId: pid, paymentUrl } = parsed.data;
       setPaymentId(pid);
-      window.open(paymentUrl, '_blank', 'noopener,noreferrer');
-      toast.success('Payment window opened. Complete checkout, then verify here (or wait for the gateway IPN).');
+      navigateToCheckout(paymentUrl);
+      toast.success(
+        'Opening checkout. After paying, confirm on the next screen (or use Verify on this page).'
+      );
     } catch {
       toast.error('Could not start payment. You may need to join first or payment may already exist.');
     } finally {

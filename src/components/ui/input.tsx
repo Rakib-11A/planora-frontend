@@ -6,6 +6,12 @@ export interface InputProps extends ComponentPropsWithoutRef<'input'> {
   error?: string;
 }
 
+/**
+ * Input — form field primitive.
+ *
+ * Uses semantic tokens so dark mode, disabled, and error states are all
+ * coherent. Ring-based focus matches the Button primitive.
+ */
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { className, error, id, ...rest },
   ref
@@ -20,10 +26,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         ref={ref}
         id={inputId}
         className={cn(
-          'border-planora-border bg-background text-foreground focus-visible:ring-planora-primary block w-full rounded-md border px-3 py-2 text-sm transition-colors',
-          'focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-          'disabled:cursor-not-allowed disabled:opacity-60',
-          error && 'border-planora-danger focus-visible:ring-planora-danger',
+          'bg-input text-foreground border-input-border placeholder:text-muted block h-9 w-full rounded-md border px-3 text-sm',
+          'motion-safe:transition-colors motion-safe:duration-150',
+          'focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+          'disabled:bg-surface-subtle disabled:text-muted disabled:cursor-not-allowed',
+          error && 'border-destructive focus-visible:ring-destructive',
           className
         )}
         aria-invalid={error ? true : undefined}
@@ -31,7 +38,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {...rest}
       />
       {error ? (
-        <p id={errorId} className="text-planora-danger mt-1 text-xs">
+        <p id={errorId} className="text-destructive mt-1.5 text-xs">
           {error}
         </p>
       ) : null}

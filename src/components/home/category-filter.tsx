@@ -2,23 +2,23 @@
 
 import { cn } from '@/lib/utils';
 
-/** Values passed to `onCategoryChange`; align with `EventTypeLabel` plus `all`. */
+/** Chip ids for home category filtering (kebab-case); keep in sync with `EventCategoriesSection` rules. */
 export const CATEGORY_FILTER_IDS = [
   'all',
-  'PUBLIC_FREE',
-  'PUBLIC_PAID',
-  'PRIVATE_FREE',
-  'PRIVATE_PAID',
+  'public-free',
+  'public-paid',
+  'private-free',
+  'private-paid',
 ] as const;
 
 export type CategoryFilterId = (typeof CATEGORY_FILTER_IDS)[number];
 
 const CATEGORY_LABELS: Record<CategoryFilterId, string> = {
   all: 'All Events',
-  PUBLIC_FREE: 'Public Free',
-  PUBLIC_PAID: 'Public Paid',
-  PRIVATE_FREE: 'Private Free',
-  PRIVATE_PAID: 'Private Paid',
+  'public-free': 'Public Free',
+  'public-paid': 'Public Paid',
+  'private-free': 'Private Free',
+  'private-paid': 'Private Paid',
 };
 
 export interface CategoryFilterProps {

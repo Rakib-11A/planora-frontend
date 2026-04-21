@@ -167,3 +167,32 @@ api.interceptors.response.use(
 export function unwrapApiData<T>(response: ApiResponse<T>): T {
   return response.data;
 }
+
+/**
+ * Normalizes common Axios error payloads into user-facing text.
+ */
+export function getApiErrorMessage(
+  error: unknown,
+  fallback = 'Something went wrong. Please try again.'
+): string {
+  if (!error || typeof error !== 'object') {
+    return fallback;
+  }
+
+  const axiosErr = error as AxiosError<ApiErrorBody>;
+  const status = axiosErr.response?.status;
+  const responseMessage = axiosErr.response?.data?.message;
+
+  if (typeof responseMessage === 'string' && responseMessage.trim() !== '') {
+    return responseMessage;
+  }
+  if (status === 401) return 'Session expired. Please sign in again.';
+  if (status === 403) return 'You do not have permission to perform this action.';
+  if (status === 404) return 'Requested resource was not found.';
+  if (status === 429) return 'Too many requests. Please wait and retry.';
+  if (status === 503) return 'Service is temporarily unavailable. Please try again shortly.';
+  if (axiosErr.response === undefined) {
+    return 'Unable to reach the server. Check network/CORS settings and try again.';
+  }
+  return fallback;
+}

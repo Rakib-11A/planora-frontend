@@ -10,7 +10,7 @@ import { FormStack } from '@/components/ui/form-stack';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { routes } from '@/constants/config';
-import { api, unwrapApiData } from '@/lib/api';
+import { api, getApiErrorMessage, unwrapApiData } from '@/lib/api';
 import { forgotPasswordFormSchema } from '@/lib/schemas/auth-forms';
 import type { ApiResponse } from '@/types/api';
 
@@ -33,8 +33,8 @@ export function ForgotPasswordForm() {
         message: string;
       }>;
       toast.success(unwrapApiData(res).message);
-    } catch {
-      toast.error('Could not start reset. Try again later.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not start reset. Try again later.'));
     } finally {
       setLoading(false);
     }

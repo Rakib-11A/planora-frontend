@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TOKEN_KEY, routes } from '@/constants/config';
 import { useAuthStore } from '@/hooks/useAuthStore';
-import { api, unwrapApiData } from '@/lib/api';
+import { api, getApiErrorMessage, unwrapApiData } from '@/lib/api';
 import type { ApiResponse } from '@/types/api';
 import type { AuthResponse } from '@/types/user';
 
@@ -36,8 +36,8 @@ export function LoginForm() {
       toast.success('Signed in.');
       router.push(routes.home);
       router.refresh();
-    } catch {
-      toast.error('Invalid email or password.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Invalid email or password.'));
     } finally {
       setLoading(false);
     }

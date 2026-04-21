@@ -10,7 +10,7 @@ import { FormStack } from '@/components/ui/form-stack';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { routes } from '@/constants/config';
-import { api, unwrapApiData } from '@/lib/api';
+import { api, getApiErrorMessage, unwrapApiData } from '@/lib/api';
 import { resendOtpFormSchema, verifyEmailFormSchema } from '@/lib/schemas/auth-forms';
 import type { ApiResponse } from '@/types/api';
 
@@ -36,8 +36,8 @@ export function VerifyEmailForm() {
         message: string;
       }>;
       toast.success(unwrapApiData(res).message);
-    } catch {
-      toast.error('Verification failed. Check the code and try again.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Verification failed. Check the code and try again.'));
     } finally {
       setLoading(false);
     }
@@ -56,8 +56,8 @@ export function VerifyEmailForm() {
         message: string;
       }>;
       toast.success(unwrapApiData(res).message);
-    } catch {
-      toast.error('Could not resend code.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not resend code.'));
     } finally {
       setResendBusy(false);
     }

@@ -10,7 +10,7 @@ import { FormStack } from '@/components/ui/form-stack';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { routes } from '@/constants/config';
-import { api, unwrapApiData } from '@/lib/api';
+import { api, getApiErrorMessage, unwrapApiData } from '@/lib/api';
 import { resetPasswordFormSchema } from '@/lib/schemas/auth-forms';
 import type { ApiResponse } from '@/types/api';
 
@@ -47,8 +47,8 @@ export function ResetPasswordForm() {
         message: string;
       }>;
       toast.success(unwrapApiData(res).message);
-    } catch {
-      toast.error('Reset failed. Check the code and try again.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Reset failed. Check the code and try again.'));
     } finally {
       setLoading(false);
     }

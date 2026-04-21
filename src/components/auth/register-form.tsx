@@ -10,7 +10,7 @@ import { FormStack } from '@/components/ui/form-stack';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { routes } from '@/constants/config';
-import { api, unwrapApiData } from '@/lib/api';
+import { api, getApiErrorMessage, unwrapApiData } from '@/lib/api';
 import type { ApiResponse } from '@/types/api';
 
 interface RegisterResponse {
@@ -34,8 +34,8 @@ export function RegisterForm() {
       })) as ApiResponse<RegisterResponse>;
       const { message } = unwrapApiData(res);
       toast.success(message);
-    } catch {
-      toast.error('Registration failed. Email may already be in use.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Registration failed. Email may already be in use.'));
     } finally {
       setLoading(false);
     }

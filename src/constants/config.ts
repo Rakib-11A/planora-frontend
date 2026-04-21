@@ -37,10 +37,7 @@ function trimTrailingSlash(value: string): string {
 
 function normalizeApiUrl(value: string): string {
   const trimmed = trimTrailingSlash(value.trim());
-  if (trimmed === '') {
-    // Safe production fallback for same-origin Nginx proxy routing.
-    return '/api';
-  }
+  if (trimmed === '') return '/api';
   if (trimmed === '/api') return '/api';
   if (trimmed.endsWith('/api')) return trimmed;
   return `${trimmed}/api`;

@@ -1,103 +1,75 @@
-'use client';
-
-import { Calendar, MapPin } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-import { EventCard } from '@/components/events/event-card';
+import { HeroSearchBar } from '@/components/home/hero-search-bar';
+import { buttonVariants } from '@/components/ui/button';
 import { routes } from '@/constants/config';
-import type { EventWithType } from '@/types/event';
-import { cn, formatDate } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
-export interface HeroSectionProps {
-  featuredEvent: EventWithType | null;
-}
-
-const MAX_DESCRIPTION_LENGTH = 150;
-
-const linkBtnBase =
-  'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-planora-primary focus-visible:ring-offset-2';
-
-const linkBtnPrimary = 'bg-planora-primary text-white hover:bg-planora-primary/90';
-
-const linkBtnOutline =
-  'border-2 border-planora-primary bg-transparent text-planora-primary hover:bg-planora-primary/10';
-
-function truncateDescription(text: string, max = MAX_DESCRIPTION_LENGTH): string {
-  if (text.length <= max) return text;
-  return `${text.slice(0, max).trimEnd()}...`;
-}
-
-export function HeroSection({ featuredEvent }: HeroSectionProps) {
+/**
+ * Editorial hero — Stripe/Linear/Notion tone.
+ *
+ * Typography carries the page. Background is a single subtle radial wash,
+ * theme-reactive, with no parallax, blobs, tilt, or ambient animation.
+ * Featured events live in their own section below (see FeaturedEventSection).
+ */
+export function HeroSection() {
   return (
-    <section
-      className={cn(
-        'from-planora-primary/10 to-planora-secondary/10 w-full bg-gradient-to-r px-4 py-20 transition-colors duration-300'
-      )}
-    >
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-12">
-        <div className="min-w-0">
-          {featuredEvent ? (
-            <>
-              <span className="bg-planora-primary/15 text-planora-primary inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase">
-                Featured Event
-              </span>
-              <h1 className="text-planora-primary mt-4 text-4xl leading-tight font-bold md:text-5xl">
-                {featuredEvent.title}
-              </h1>
-              <div className="text-planora-muted mt-4 flex flex-col gap-2">
-                <p className="text-foreground flex items-center gap-2 text-base font-medium">
-                  <Calendar className="text-planora-primary size-5 shrink-0" aria-hidden />
-                  {formatDate(featuredEvent.dateTime, undefined, {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
-                </p>
-                <p className="flex items-start gap-2 text-sm">
-                  <MapPin className="text-planora-primary mt-0.5 size-5 shrink-0" aria-hidden />
-                  <span className="line-clamp-2">{featuredEvent.venue}</span>
-                </p>
-              </div>
-              <p className="mt-4 text-base leading-relaxed text-gray-700">
-                {truncateDescription(featuredEvent.description)}
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href={routes.event(featuredEvent.id)}
-                  className={cn(linkBtnBase, linkBtnPrimary)}
-                >
-                  Join Now
-                </Link>
-                <Link href={routes.events} className={cn(linkBtnBase, linkBtnOutline)}>
-                  View All Events
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <h1 className="text-planora-primary text-4xl leading-tight font-bold md:text-5xl">
-                Discover Amazing Events
-              </h1>
-              <p className="mt-4 max-w-xl text-lg text-gray-700">
-                Create, manage, and participate in events seamlessly
-              </p>
-              <div className="mt-8">
-                <Link href={routes.events} className={cn(linkBtnBase, linkBtnPrimary)}>
-                  Explore Events
-                </Link>
-              </div>
-            </>
+    <section className="relative isolate overflow-hidden">
+      {/* Subtle radial wash — indigo tint in light, brighter indigo in dark. */}
+      <div
+        className={cn(
+          'pointer-events-none absolute inset-0 -z-10',
+          'bg-[radial-gradient(60rem_32rem_at_50%_-10%,rgba(79,70,229,0.10),transparent_70%)]',
+          'dark:bg-[radial-gradient(60rem_32rem_at_50%_-10%,rgba(99,102,241,0.22),transparent_70%)]'
+        )}
+        aria-hidden
+      />
+      {/* Hairline divider separates hero from first section. */}
+      <div
+        className="bg-border pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-px"
+        aria-hidden
+      />
+
+      <div className="mx-auto max-w-5xl px-4 pb-24 pt-16 text-center sm:pt-20 md:pb-32 md:pt-28">
+        <p className="text-primary text-xs font-semibold uppercase tracking-[0.14em]">
+          Plan. Host. Sell out.
+        </p>
+
+        <h1
+          className={cn(
+            'text-foreground mt-5 text-balance font-semibold tracking-tight',
+            'text-4xl leading-[1.08] sm:text-5xl md:text-6xl lg:text-[4.5rem]'
           )}
+        >
+          Events that run <span className="text-muted-strong">themselves.</span>
+        </h1>
+
+        <p className="text-muted mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed sm:text-lg">
+          Planora is the quietest way to create, invite, sell, and manage events.
+          Built for organizers who want clarity — not a dashboard that shouts.
+        </p>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href={routes.createEvent}
+            className={buttonVariants({ variant: 'primary', size: 'lg', className: 'px-6' })}
+          >
+            Create an event
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
+          <Link
+            href={routes.events}
+            className={buttonVariants({ variant: 'ghost', size: 'lg' })}
+          >
+            Browse events
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
         </div>
 
-        {featuredEvent ? (
-          <div className="min-w-0 justify-self-center md:justify-self-end">
-            <EventCard event={featuredEvent} variant="featured" />
-          </div>
-        ) : null}
+        <div className="mx-auto mt-14 max-w-xl">
+          <HeroSearchBar />
+        </div>
       </div>
     </section>
   );

@@ -9,6 +9,13 @@ import toast from 'react-hot-toast';
 import { API_URL, TOKEN_KEY, routes } from '@/constants/config';
 import type { ApiErrorBody, ApiResponse } from '@/types/api';
 
+/** `react-hot-toast` is client-only; avoid calling it during RSC / SSR fetches. */
+function notifyError(message: string): void {
+  if (typeof window !== 'undefined') {
+    toast.error(message);
+  }
+}
+
 declare module 'axios' {
   export interface AxiosRequestConfig {
     /** Prevents infinite retry when refreshing the access token. */
@@ -50,6 +57,35 @@ const refreshClient = axios.create({
   withCredentials: true,
 });
 
+/**
+ * Single in-flight refresh so concurrent 401s (multi-tab / parallel requests) do not
+ * rotate the refresh cookie twice and invalidate each other.
+ */
+let refreshAccessTokenPromise: Promise<string> | null = null;
+
+function getRefreshedAccessToken(): Promise<string> {
+  if (refreshAccessTokenPromise !== null) {
+    return refreshAccessTokenPromise;
+  }
+
+  refreshAccessTokenPromise = refreshClient
+    .post<ApiResponse<{ accessToken: string }>>('auth/refresh-token')
+    .then((res) => {
+      const envelope = res.data;
+      const token = envelope?.data?.accessToken;
+      if (typeof token !== 'string' || token === '') {
+        throw new Error('Refresh response missing accessToken');
+      }
+      persistAccessToken(token);
+      return token;
+    })
+    .finally(() => {
+      refreshAccessTokenPromise = null;
+    });
+
+  return refreshAccessTokenPromise;
+}
+
 export const api: AxiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
@@ -71,7 +107,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (!error.response) {
-      toast.error('Network error. Check your connection and try again.');
+      notifyError('Network error. Check your connection and try again.');
       if (process.env.NODE_ENV === 'development') {
         console.error('[api] network error', error);
       }
@@ -82,13 +118,20 @@ api.interceptors.response.use(
     const message = error.response.data?.message ?? error.message ?? 'Something went wrong';
 
     if (status !== 401 || !originalRequest) {
-      toast.error(message);
+      // Rate limits / transient overload: avoid toast spam (many layouts mount together in dev).
+      if (status === 429 || status === 503) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`[api] ${status} ${originalRequest?.url ?? ''}`, message);
+        }
+      } else {
+        notifyError(message);
+      }
       return Promise.reject(error);
     }
 
     if (originalRequest.url?.includes('auth/refresh-token')) {
       clearSession();
-      toast.error('Session expired. Please sign in again.');
+      notifyError('Session expired. Please sign in again.');
       if (typeof window !== 'undefined') {
         window.location.assign(routes.login);
       }
@@ -97,22 +140,19 @@ api.interceptors.response.use(
 
     const hadAuth = Boolean(getAuthorizationHeader(originalRequest));
     if (!hadAuth || originalRequest._retry) {
-      toast.error(message);
+      notifyError(message);
       return Promise.reject(error);
     }
 
     originalRequest._retry = true;
 
     try {
-      const refreshResponse =
-        await refreshClient.post<ApiResponse<{ accessToken: string }>>('auth/refresh-token');
-      const envelope = refreshResponse.data;
-      persistAccessToken(envelope.data.accessToken);
-      originalRequest.headers.Authorization = `Bearer ${envelope.data.accessToken}`;
+      const newAccess = await getRefreshedAccessToken();
+      originalRequest.headers.Authorization = `Bearer ${newAccess}`;
       return api.request(originalRequest);
     } catch (refreshError) {
       clearSession();
-      toast.error('Session expired. Please sign in again.');
+      notifyError('Session expired. Please sign in again.');
       if (typeof window !== 'undefined') {
         window.location.assign(routes.login);
       }
@@ -126,4 +166,33 @@ api.interceptors.response.use(
  */
 export function unwrapApiData<T>(response: ApiResponse<T>): T {
   return response.data;
+}
+
+/**
+ * Normalizes common Axios error payloads into user-facing text.
+ */
+export function getApiErrorMessage(
+  error: unknown,
+  fallback = 'Something went wrong. Please try again.'
+): string {
+  if (!error || typeof error !== 'object') {
+    return fallback;
+  }
+
+  const axiosErr = error as AxiosError<ApiErrorBody>;
+  const status = axiosErr.response?.status;
+  const responseMessage = axiosErr.response?.data?.message;
+
+  if (typeof responseMessage === 'string' && responseMessage.trim() !== '') {
+    return responseMessage;
+  }
+  if (status === 401) return 'Session expired. Please sign in again.';
+  if (status === 403) return 'You do not have permission to perform this action.';
+  if (status === 404) return 'Requested resource was not found.';
+  if (status === 429) return 'Too many requests. Please wait and retry.';
+  if (status === 503) return 'Service is temporarily unavailable. Please try again shortly.';
+  if (axiosErr.response === undefined) {
+    return 'Unable to reach the server. Check network/CORS settings and try again.';
+  }
+  return fallback;
 }

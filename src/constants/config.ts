@@ -9,6 +9,8 @@ const devDefaults: Record<string, string> = {
   NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
 };
 
+const devWarnedMissing = new Set<string>();
+
 const readPublicEnv = (name: string): string => {
   const value = process.env[name];
   if (value && value.length > 0) {
@@ -17,9 +19,12 @@ const readPublicEnv = (name: string): string => {
   if (process.env.NODE_ENV === 'development') {
     const fallback = devDefaults[name];
     if (fallback !== undefined) {
-      console.warn(
-        `[planora] ${name} is not set; using development default "${fallback}". Add it to .env.local to override.`
-      );
+      if (!devWarnedMissing.has(name)) {
+        devWarnedMissing.add(name);
+        console.warn(
+          `[planora] ${name} is not set; using development default "${fallback}". Add it to .env.local to override.`
+        );
+      }
       return fallback;
     }
   }
@@ -63,12 +68,33 @@ export const routes = {
   home: '/',
   login: '/login',
   register: '/register',
+  forgotPassword: '/forgot-password',
+  resetPassword: '/reset-password',
+  verifyEmail: '/verify-email',
   events: '/events',
   event: (id: string) => `/events/${id}`,
   about: '/about',
   dashboard: '/dashboard',
+  createEvent: '/dashboard/create-event',
+  editEvent: (id: string) => `/dashboard/events/${id}/edit`,
+  changePassword: '/dashboard/change-password',
   myEvents: '/my-events',
   profile: '/profile',
+  participations: '/participations',
+  reviews: '/reviews',
+  invitations: '/invitations',
+  payments: '/payments',
+  /** Gateway / mock return + manual confirm (public). */
+  paymentReturn: '/payment-return',
+  notifications: '/notifications',
+  notificationSettings: '/notification-settings',
+  admin: '/admin',
+  adminUsers: '/admin/users',
+  adminEvents: '/admin/events',
+  adminReviews: '/admin/reviews',
+  adminFeatured: '/admin/featured',
+  adminCache: '/admin/cache',
+  adminRateLimits: '/admin/rate-limits',
   contact: '/contact',
   privacy: '/privacy',
   terms: '/terms',

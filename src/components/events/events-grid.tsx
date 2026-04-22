@@ -3,7 +3,7 @@
 import { CalendarX } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { EventCard } from '@/components/events/event-card';
+import { EventCardMinimal } from '@/components/home/event-card-minimal';
 import { Button } from '@/components/ui/button';
 import { routes } from '@/constants/config';
 import type { EventWithType } from '@/types/event';
@@ -18,18 +18,19 @@ export interface EventsGridProps {
 function EventCardSkeleton() {
   return (
     <div
-      className={cn(
-        'border-planora-border w-full max-w-sm overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-md',
-        'justify-self-center'
-      )}
+      className="w-full rounded-lg border border-border bg-surface p-5 shadow-sm"
       aria-hidden
     >
-      <div className="h-56 shimmer rounded-none" />
-      <div className="space-y-3 p-5">
-        <div className="h-5 w-[72%] rounded-lg shimmer" />
-        <div className="h-4 w-1/2 rounded-lg shimmer" />
-        <div className="h-4 w-full rounded-lg shimmer" />
-        <div className="h-4 w-5/6 rounded-lg shimmer" />
+      <div className="flex items-center justify-between gap-3">
+        <div className="h-3.5 w-28 rounded shimmer" />
+        <div className="h-6 w-14 rounded-full shimmer" />
+      </div>
+      <div className="mt-4 h-5 w-4/5 rounded shimmer" />
+      <div className="mt-2 h-4 w-full rounded shimmer" />
+      <div className="mt-1.5 h-4 w-3/4 rounded shimmer" />
+      <div className="mt-5 flex gap-4">
+        <div className="h-3.5 w-20 rounded shimmer" />
+        <div className="h-3.5 w-20 rounded shimmer" />
       </div>
     </div>
   );
@@ -45,10 +46,13 @@ export function EventsGrid({
   if (isLoading) {
     return (
       <div
-        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6"
         aria-busy="true"
         aria-label="Loading events"
       >
+        <EventCardSkeleton />
+        <EventCardSkeleton />
+        <EventCardSkeleton />
         <EventCardSkeleton />
         <EventCardSkeleton />
         <EventCardSkeleton />
@@ -60,21 +64,21 @@ export function EventsGrid({
     return (
       <div
         className={cn(
-          'flex flex-col items-center justify-center gap-6 rounded-3xl border border-dashed border-slate-300/60',
-          'bg-gradient-to-b from-white/50 to-slate-50/80 px-6 py-16 text-center shadow-depth-soft',
+          'flex flex-col items-center justify-center gap-6 rounded-2xl border border-dashed border-slate-300/60',
+          'bg-gradient-to-b from-white/50 to-slate-50/80 px-6 py-16 text-center',
           'backdrop-blur-sm dark:border-white/15 dark:from-slate-900/50 dark:to-slate-900/30'
         )}
         role="status"
         aria-live="polite"
       >
-        <div className="flex size-16 items-center justify-center rounded-2xl bg-planora-primary/10 dark:bg-planora-primary/20">
-          <CalendarX className="text-planora-primary size-9" aria-hidden />
+        <div className="flex size-14 items-center justify-center rounded-xl bg-planora-primary/10 dark:bg-planora-primary/20">
+          <CalendarX className="text-planora-primary size-8" aria-hidden />
         </div>
-        <p className="max-w-md text-base leading-relaxed text-slate-600 dark:text-slate-300">{emptyMessage}</p>
+        <p className="max-w-md text-sm leading-relaxed text-slate-600 dark:text-slate-300">{emptyMessage}</p>
         <Button
           type="button"
           variant="primary"
-          className="motion-safe:transition motion-safe:duration-200 motion-safe:hover:scale-105 motion-safe:hover:shadow-glow-primary"
+          className="motion-safe:transition motion-safe:duration-200 motion-safe:hover:scale-105"
           onClick={() => router.push(routes.events)}
         >
           Browse all events
@@ -85,12 +89,12 @@ export function EventsGrid({
 
   return (
     <ul
-      className="grid grid-cols-1 gap-6 gap-y-8 md:grid-cols-2 md:gap-8 lg:grid-cols-3"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6"
       aria-label="Events list"
     >
       {events.map((event) => (
-        <li key={event.id} className="flex justify-center">
-          <EventCard event={event} variant="default" />
+        <li key={event.id} className="flex">
+          <EventCardMinimal event={event} className="w-full" />
         </li>
       ))}
     </ul>

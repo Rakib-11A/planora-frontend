@@ -12,6 +12,7 @@ export interface EventCardMinimalProps {
   variant?: EventCardMinimalVariant;
   /** Small label above the title — e.g. "Featured" for the highlight slot. */
   eyebrow?: string;
+  className?: string;
 }
 
 function getStart(event: EventWithType): string {
@@ -66,6 +67,7 @@ export function EventCardMinimal({
   event,
   variant = 'standard',
   eyebrow,
+  className,
 }: EventCardMinimalProps) {
   const start = getStart(event);
   const fee = getFee(event);
@@ -91,7 +93,7 @@ export function EventCardMinimal({
       <Link
         href={routes.event(event.id)}
         aria-label={`View ${event.title}`}
-        className={cn(shell, 'p-6 sm:p-8 md:p-10')}
+        className={cn(shell, 'p-6 sm:p-8 md:p-10', className)}
       >
         <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-start">
           <div className="min-w-0">
@@ -152,7 +154,7 @@ export function EventCardMinimal({
     <Link
       href={routes.event(event.id)}
       aria-label={`View ${event.title}`}
-      className={cn(shell, 'p-5')}
+      className={cn(shell, 'p-5', className)}
     >
       <div className="flex items-start justify-between gap-3">
         <p className="text-muted text-xs font-medium uppercase tracking-wide">{dateLine}</p>

@@ -26,7 +26,7 @@ export interface EventInvitationsPanelProps {
 export function EventInvitationsPanel({ eventId }: EventInvitationsPanelProps) {
   const [rows, setRows] = useState<EventInvitationRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [inviteeId, setInviteeId] = useState('');
+  const [inviteeEmail, setInviteeEmail] = useState('');
   const [sending, setSending] = useState(false);
 
   const load = useCallback(async () => {
@@ -51,19 +51,23 @@ export function EventInvitationsPanel({ eventId }: EventInvitationsPanelProps) {
 
   async function sendInvite(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = inviteeId.trim();
+    const trimmed = inviteeEmail.trim().toLowerCase();
     if (!trimmed) {
-      toast.error('Enter the invitee user ID (CUID).');
+      toast.error('Enter the invitee email address.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error('Enter a valid email address.');
       return;
     }
     setSending(true);
     try {
-      await api.post(`events/${eventId}/invite`, { inviteeId: trimmed });
+      await api.post(`events/${eventId}/invite`, { inviteeEmail: trimmed });
       toast.success('Invitation sent.');
-      setInviteeId('');
+      setInviteeEmail('');
       await load();
     } catch {
-      toast.error('Invite failed. Check the user ID and permissions.');
+      // API interceptor already shows the specific error (e.g. "No user found with that email address")
     } finally {
       setSending(false);
     }
@@ -86,19 +90,19 @@ export function EventInvitationsPanel({ eventId }: EventInvitationsPanelProps) {
     >
       <CardTitle className="gradient-text text-xl font-bold">Invitations</CardTitle>
       <CardDescription className="text-slate-600 dark:text-slate-300">
-        Private events use invitations. Paste a user&apos;s Planora ID (CUID from their profile URL or
-        database seed).
+        Invite a registered Planora user by their email address.
       </CardDescription>
       <form className="mt-4 max-w-lg" onSubmit={(ev) => void sendInvite(ev)}>
         <FormStack>
           <div>
-            <Label htmlFor="invitee-id">Invitee user ID</Label>
+            <Label htmlFor="invitee-email">Invitee email address</Label>
             <Input
-              id="invitee-id"
+              id="invitee-email"
               className="mt-1"
-              placeholder="clxxxxxxxx..."
-              value={inviteeId}
-              onChange={(ev) => setInviteeId(ev.target.value)}
+              type="email"
+              placeholder="user@example.com"
+              value={inviteeEmail}
+              onChange={(ev) => setInviteeEmail(ev.target.value)}
             />
           </div>
           <Button type="submit" variant="secondary" isLoading={sending}>

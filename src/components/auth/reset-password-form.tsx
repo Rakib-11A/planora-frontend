@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
@@ -15,12 +16,21 @@ import { resetPasswordFormSchema } from '@/lib/schemas/auth-forms';
 import type { ApiResponse } from '@/types/api';
 
 export function ResetPasswordForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string | undefined>>({});
+
+  // Pre-fill email from URL query param (?email=...) set by the forgot-password page
+  useEffect(() => {
+    const emailParam = searchParams.get('email');
+    if (emailParam) setEmail(emailParam);
+  }, [searchParams]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,6 +57,7 @@ export function ResetPasswordForm() {
         message: string;
       }>;
       toast.success(unwrapApiData(res).message);
+      router.push(routes.login);
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Reset failed. Check the code and try again.'));
     } finally {
@@ -58,7 +69,7 @@ export function ResetPasswordForm() {
     <Card variant="glass">
       <CardTitle className="gradient-text text-xl font-bold tracking-tight">Set a new password</CardTitle>
       <CardDescription className="text-slate-600 dark:text-slate-300">
-        Use the 6-digit code sent to your email together with your new password.
+        Enter the 6-digit code from your email, then choose a new password.
       </CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
         <FormStack>
@@ -75,13 +86,14 @@ export function ResetPasswordForm() {
             />
           </div>
           <div>
-            <Label htmlFor="reset-otp">One-time code</Label>
+            <Label htmlFor="reset-otp">6-digit code from email</Label>
             <Input
               id="reset-otp"
               className="mt-1"
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={6}
+              placeholder="123456"
               value={otp}
               onChange={(ev) => setOtp(ev.target.value.replace(/\D/g, '').slice(0, 6))}
               error={fieldErrors.otp}
@@ -100,7 +112,7 @@ export function ResetPasswordForm() {
             />
           </div>
           <div>
-            <Label htmlFor="reset-confirm">Confirm password</Label>
+            <Label htmlFor="reset-confirm">Confirm new password</Label>
             <Input
               id="reset-confirm"
               className="mt-1"
@@ -117,6 +129,14 @@ export function ResetPasswordForm() {
         </FormStack>
       </form>
       <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+        Didn&apos;t get a code?{' '}
+        <Link
+          href={routes.forgotPassword}
+          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+        >
+          Resend
+        </Link>
+        {' · '}
         <Link
           href={routes.login}
           className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"

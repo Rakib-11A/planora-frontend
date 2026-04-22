@@ -22,6 +22,7 @@ export function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string | undefined>>({});
 
@@ -29,24 +30,30 @@ export function RegisterForm() {
     e.preventDefault();
     setFieldErrors({});
 
-    const parsed = registerFormSchema.safeParse({ name, email, password });
+    const parsed = registerFormSchema.safeParse({ name, email, password, confirmPassword });
     if (!parsed.success) {
       const flat = parsed.error.flatten().fieldErrors;
       setFieldErrors({
         name: flat.name?.[0],
         email: flat.email?.[0],
         password: flat.password?.[0],
+        confirmPassword: flat.confirmPassword?.[0],
       });
       return;
     }
 
+    // Backend registerSchema uses .strict() — confirmPassword is not in it, so strip it
+    const { confirmPassword: _omit, ...body } = parsed.data;
+    void _omit;
+
     setLoading(true);
     try {
-      const res = (await api.post('auth/register', parsed.data)) as ApiResponse<RegisterResponse>;
+      const res = (await api.post('auth/register', body)) as ApiResponse<RegisterResponse>;
       const { message } = unwrapApiData(res);
       setName('');
       setEmail('');
       setPassword('');
+      setConfirmPassword('');
       setFieldErrors({});
       toast.success(message);
     } catch (error) {
@@ -91,9 +98,22 @@ export function RegisterForm() {
               id="reg-password"
               className="mt-1"
               type="password"
+              autoComplete="new-password"
               value={password}
               onChange={(ev) => setPassword(ev.target.value)}
               error={fieldErrors.password}
+            />
+          </div>
+          <div>
+            <Label htmlFor="reg-confirm">Confirm password</Label>
+            <Input
+              id="reg-confirm"
+              className="mt-1"
+              type="password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(ev) => setConfirmPassword(ev.target.value)}
+              error={fieldErrors.confirmPassword}
             />
           </div>
           <Button type="submit" variant="primary" className="w-full" isLoading={loading}>

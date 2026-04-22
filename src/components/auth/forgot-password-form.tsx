@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -15,6 +16,7 @@ import { forgotPasswordFormSchema } from '@/lib/schemas/auth-forms';
 import type { ApiResponse } from '@/types/api';
 
 export function ForgotPasswordForm() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
@@ -33,6 +35,9 @@ export function ForgotPasswordForm() {
         message: string;
       }>;
       toast.success(unwrapApiData(res).message);
+      // Redirect to the reset-password page with email pre-filled so the user
+      // can immediately enter the 6-digit code from their inbox.
+      router.push(`${routes.resetPassword}?email=${encodeURIComponent(parsed.data.email)}`);
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Could not start reset. Try again later.'));
     } finally {
@@ -44,7 +49,7 @@ export function ForgotPasswordForm() {
     <Card variant="glass">
       <CardTitle className="gradient-text text-xl font-bold tracking-tight">Reset password</CardTitle>
       <CardDescription className="text-slate-600 dark:text-slate-300">
-        Enter the email for your account. If it exists, you will receive reset instructions.
+        Enter your account email. We&apos;ll send a 6-digit code you can use to set a new password.
       </CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
         <FormStack>
@@ -61,7 +66,7 @@ export function ForgotPasswordForm() {
             />
           </div>
           <Button type="submit" variant="primary" className="w-full" isLoading={loading}>
-            Send reset link
+            Send reset code
           </Button>
         </FormStack>
       </form>
@@ -71,6 +76,13 @@ export function ForgotPasswordForm() {
           className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
         >
           Back to sign in
+        </Link>
+        {' · '}
+        <Link
+          href={routes.resetPassword}
+          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+        >
+          Already have a code?
         </Link>
       </p>
     </Card>

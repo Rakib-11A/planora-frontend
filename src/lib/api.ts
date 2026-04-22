@@ -140,6 +140,34 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // #region agent log
+  const reqUrl = config.url ?? '';
+  if (typeof reqUrl === 'string' && reqUrl.includes('auth/register') && config.data && typeof config.data === 'object') {
+    const d = config.data as Record<string, unknown>;
+    const em = typeof d.email === 'string' ? d.email : '';
+    const nm = typeof d.name === 'string' ? d.name : '';
+    fetch('http://127.0.0.1:7530/ingest/f1827538-6564-4331-b43b-32c165d17185', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '132df5' },
+      body: JSON.stringify({
+        sessionId: '132df5',
+        runId: 'pre-fix',
+        hypothesisId: 'H1-H2',
+        location: 'api.ts:requestInterceptor',
+        message: 'auth/register outgoing body shape',
+        data: {
+          keys: Object.keys(d),
+          nameLen: nm.length,
+          nameTrimDiff: nm !== nm.trim(),
+          emailLen: em.length,
+          emailTrimDiff: em !== em.trim(),
+          pwdLen: typeof d.password === 'string' ? d.password.length : null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  }
+  // #endregion
   return config;
 });
 
@@ -158,6 +186,35 @@ api.interceptors.response.use(
 
     const status = error.response.status;
     const message = error.response.data?.message ?? error.message ?? 'Something went wrong';
+
+    // #region agent log
+    const reqUrl = originalRequest?.url ?? error.config?.url;
+    if (typeof reqUrl === 'string' && reqUrl.includes('auth/register')) {
+      const errBody = error.response.data;
+      fetch('http://127.0.0.1:7530/ingest/f1827538-6564-4331-b43b-32c165d17185', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '132df5' },
+        body: JSON.stringify({
+          sessionId: '132df5',
+          runId: 'pre-fix',
+          hypothesisId: 'H1-H3-H4',
+          location: 'api.ts:responseInterceptor',
+          message: 'auth/register error response',
+          data: {
+            status,
+            message,
+            baseURL: error.config?.baseURL,
+            url: reqUrl,
+            errorsPreview:
+              errBody && typeof errBody === 'object' && 'errors' in errBody
+                ? JSON.stringify((errBody as { errors?: unknown }).errors).slice(0, 800)
+                : null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+    }
+    // #endregion
 
     if (status !== 401 || !originalRequest) {
       // Rate limits / transient overload: avoid toast spam (many layouts mount together in dev).

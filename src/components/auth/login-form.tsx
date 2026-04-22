@@ -33,6 +33,8 @@ export function LoginForm() {
         window.localStorage.setItem(TOKEN_KEY, accessToken);
       }
       setUser(user);
+      setEmail('');
+      setPassword('');
       toast.success('Signed in.');
       router.push(routes.home);
       router.refresh();

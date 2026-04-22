@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { routes } from '@/constants/config';
 import { api, getApiErrorMessage, unwrapApiData } from '@/lib/api';
+import { registerFormSchema } from '@/lib/schemas/auth-forms';
 import type { ApiResponse } from '@/types/api';
 
 interface RegisterResponse {
@@ -22,17 +23,31 @@ export function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string | undefined>>({});
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setFieldErrors({});
+
+    const parsed = registerFormSchema.safeParse({ name, email, password });
+    if (!parsed.success) {
+      const flat = parsed.error.flatten().fieldErrors;
+      setFieldErrors({
+        name: flat.name?.[0],
+        email: flat.email?.[0],
+        password: flat.password?.[0],
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = (await api.post('auth/register', {
-        name,
-        email,
-        password,
-      })) as ApiResponse<RegisterResponse>;
+      const res = (await api.post('auth/register', parsed.data)) as ApiResponse<RegisterResponse>;
       const { message } = unwrapApiData(res);
+      setName('');
+      setEmail('');
+      setPassword('');
+      setFieldErrors({});
       toast.success(message);
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Registration failed. Email may already be in use.'));
@@ -54,11 +69,9 @@ export function RegisterForm() {
             <Input
               id="reg-name"
               className="mt-1"
-              required
-              minLength={2}
-              maxLength={50}
               value={name}
               onChange={(ev) => setName(ev.target.value)}
+              error={fieldErrors.name}
             />
           </div>
           <div>
@@ -67,9 +80,9 @@ export function RegisterForm() {
               id="reg-email"
               className="mt-1"
               type="email"
-              required
               value={email}
               onChange={(ev) => setEmail(ev.target.value)}
+              error={fieldErrors.email}
             />
           </div>
           <div>
@@ -78,10 +91,9 @@ export function RegisterForm() {
               id="reg-password"
               className="mt-1"
               type="password"
-              required
-              minLength={8}
               value={password}
               onChange={(ev) => setPassword(ev.target.value)}
+              error={fieldErrors.password}
             />
           </div>
           <Button type="submit" variant="primary" className="w-full" isLoading={loading}>

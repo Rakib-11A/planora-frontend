@@ -17,6 +17,16 @@ const otpField = z
   .string({ required_error: 'OTP is required' })
   .regex(/^\d{6}$/, { message: 'OTP must be 6 digits' });
 
+export const registerFormSchema = z.object({
+  name: z
+    .string({ required_error: 'Name is required' })
+    .trim()
+    .min(2, { message: 'Name must be at least 2 characters' })
+    .max(50, { message: 'Name must be at most 50 characters' }),
+  email: emailField,
+  password: strongPassword,
+});
+
 export const forgotPasswordFormSchema = z.object({
   email: emailField,
 });
@@ -74,6 +84,7 @@ export const changePasswordFormSchema = z
     message: 'Passwords do not match',
   });
 
+export type RegisterFormValues = z.infer<typeof registerFormSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
 export type VerifyEmailFormValues = z.infer<typeof verifyEmailFormSchema>;
 export type ResendOtpFormValues = z.infer<typeof resendOtpFormSchema>;

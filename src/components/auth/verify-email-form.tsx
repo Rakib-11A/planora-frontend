@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -9,12 +10,16 @@ import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { FormStack } from '@/components/ui/form-stack';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { routes } from '@/constants/config';
+import { TOKEN_KEY, routes } from '@/constants/config';
+import { useAuthStore } from '@/hooks/useAuthStore';
 import { api, getApiErrorMessage, unwrapApiData } from '@/lib/api';
 import { resendOtpFormSchema, verifyEmailFormSchema } from '@/lib/schemas/auth-forms';
 import type { ApiResponse } from '@/types/api';
+import type { AuthResponse } from '@/types/user';
 
 export function VerifyEmailForm() {
+  const router = useRouter();
+  const setUser = useAuthStore((s) => s.setUser);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,10 +37,17 @@ export function VerifyEmailForm() {
     }
     setLoading(true);
     try {
-      const res = (await api.post('auth/verify-email', parsed.data)) as ApiResponse<{
-        message: string;
-      }>;
-      toast.success(unwrapApiData(res).message);
+      const res = (await api.post('auth/verify-email', parsed.data)) as ApiResponse<AuthResponse>;
+      const { user, accessToken } = unwrapApiData(res);
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(TOKEN_KEY, accessToken);
+      }
+      setUser(user);
+      setEmail('');
+      setOtp('');
+      toast.success('Email verified! Welcome to Planora 🎉');
+      router.push(routes.home);
+      router.refresh();
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Verification failed. Check the code and try again.'));
     } finally {

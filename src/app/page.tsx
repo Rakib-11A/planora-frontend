@@ -7,6 +7,9 @@ import { UpcomingEventsSection } from '@/components/home/upcoming-events-section
 import { fetchFeaturedEvent, fetchPublicEventsForHome } from '@/lib/events';
 import type { EventWithType } from '@/types/event';
 
+// Always SSR so event edits appear immediately — no Full Route Cache or stale Router Cache.
+export const dynamic = 'force-dynamic';
+
 const UPCOMING_LIMIT = 9;
 const BROWSE_LIMIT = 30;
 

@@ -102,8 +102,8 @@ export function EditEventForm({ eventId }: EditEventFormProps) {
       };
       await api.patch(`events/${eventId}`, body);
       toast.success('Event updated.');
-      router.push(routes.event(eventId));
       router.refresh();
+      router.push(routes.event(eventId));
     } catch {
       toast.error('Update failed. You may not be the owner.');
     } finally {
@@ -117,8 +117,8 @@ export function EditEventForm({ eventId }: EditEventFormProps) {
     try {
       await api.delete(`events/${eventId}`);
       toast.success('Event deleted.');
-      router.push(routes.myEvents);
       router.refresh();
+      router.push(routes.myEvents);
     } catch {
       toast.error('Delete failed.');
     } finally {

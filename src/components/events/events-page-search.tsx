@@ -48,41 +48,50 @@ export function EventsPageSearch({ defaultQuery = '' }: EventsPageSearchProps) {
   return (
     <div className="mx-auto mt-8 w-full max-w-2xl">
       <form onSubmit={onSubmit} role="search" aria-label="Search events on this page">
-        <div className="glass-effect flex flex-wrap items-center gap-2 rounded-full border border-white/40 px-2 py-2 shadow-lifted backdrop-blur-xl dark:border-white/15 sm:flex-nowrap">
+        {/* Hidden label for screen readers */}
+        <label htmlFor={inputId} className="sr-only">
+          Search events
+        </label>
+
+        {/*
+          Single-row layout on every screen size.
+          Mobile: rounded-2xl (pill shape needs single-row content to look right).
+          sm+:    rounded-full pill.
+        */}
+        <div className="glass-effect flex items-center gap-2 rounded-2xl border border-white/40 px-3 py-2 shadow-lifted backdrop-blur-xl sm:rounded-full sm:px-2 sm:py-2 dark:border-white/15">
           <Search
-            className="text-planora-primary pointer-events-none ml-2 size-5 shrink-0 sm:ml-3"
+            className="text-planora-primary pointer-events-none ml-1 size-4 shrink-0 sm:ml-2 sm:size-5"
             aria-hidden
           />
-          <div className="relative min-w-0 flex-1 px-1">
-            <input
-              id={inputId}
-              type="search"
-              name="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder=" "
-              autoComplete="off"
-              className={cn(
-                'peer w-full min-w-0 rounded-full bg-transparent px-2 pb-2 pt-5 text-base text-slate-900 outline-none dark:text-slate-100',
-                'focus-visible:ring-2 focus-visible:ring-planora-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
-              )}
-            />
-            <label
-              htmlFor={inputId}
-              className={cn(
-                'text-planora-muted pointer-events-none absolute left-2 top-1/2 origin-left -translate-y-1/2 text-sm transition-all',
-                'peer-focus:top-2 peer-focus:-translate-y-0 peer-focus:scale-90 peer-focus:text-xs',
-                'peer-[:not(:placeholder-shown)]:top-2 peer-[:not(:placeholder-shown)]:-translate-y-0 peer-[:not(:placeholder-shown)]:scale-90 peer-[:not(:placeholder-shown)]:text-xs'
-              )}
-            >
-              Search title or organizer
-            </label>
-          </div>
+
+          <input
+            id={inputId}
+            type="search"
+            name="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search events…"
+            autoComplete="off"
+            className={cn(
+              'min-w-0 flex-1 bg-transparent py-1.5 text-sm text-slate-900 outline-none',
+              'placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500',
+              'focus-visible:outline-none'
+            )}
+          />
+
+          {/*
+            Compact on mobile (h-8 rounded-xl), full-size on sm+.
+            Always a single inline element — no wrapping, no full-width row.
+          */}
           <Button
             type="submit"
             variant="primary"
-            size="md"
-            className="w-full shrink-0 rounded-full sm:w-auto motion-safe:transition motion-safe:duration-300 motion-safe:hover:scale-105 motion-safe:hover:shadow-glow-primary"
+            size="sm"
+            className={cn(
+              'shrink-0 rounded-xl',
+              'sm:h-9 sm:rounded-full sm:px-5 sm:text-sm',
+              'motion-safe:transition motion-safe:duration-300 motion-safe:hover:shadow-glow-primary'
+            )}
           >
             Search
           </Button>

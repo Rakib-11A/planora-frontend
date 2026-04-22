@@ -54,31 +54,52 @@ function trimTrailingSlash(value: string): string {
 }
 
 /**
- * Browser can use relative `/api`; server-side Axios needs an absolute URL.
+ * Browser can use relative `/api`; server-side Axios needs an absolute base URL.
+ * Prefer explicit server-only origin (set in `.env.production` on the droplet), then public app URL, then localhost.
  */
-function resolveAxiosBaseUrl(): string {
-  if (typeof window !== 'undefined') {
-    return API_URL;
-  }
-  if (!API_URL.startsWith('/')) {
-    return API_URL;
-  }
-  const appOrigin = trimTrailingSlash(APP_URL);
-  if (appOrigin === '') {
-    return API_URL;
-  }
-  return `${appOrigin}${API_URL}`;
+function ssrApiOrigin(): string {
+  const fromEnv = process.env.SSR_API_ORIGIN?.trim();
+  if (fromEnv) return trimTrailingSlash(fromEnv);
+  const fromApp = trimTrailingSlash(APP_URL);
+  if (fromApp) return fromApp;
+  return 'http://127.0.0.1';
 }
 
-const AXIOS_BASE_URL = resolveAxiosBaseUrl();
+/**
+ * Force absolute base URL on Node/SSR when `API_URL` is same-origin relative (`/api`).
+ * Runs in a request interceptor so it applies even if an older bundle set relative defaults.
+ */
+function attachSsrAbsoluteBaseInterceptor(instance: AxiosInstance): void {
+  instance.interceptors.request.use((config) => {
+    if (typeof window !== 'undefined') return config;
+    const base = config.baseURL ?? instance.defaults.baseURL;
+    if (typeof base === 'string' && base.startsWith('/')) {
+      const absolute = `${ssrApiOrigin()}${base}`;
+      config.baseURL = absolute;
+    }
+    return config;
+  });
+}
+
+// #region agent log
+if (typeof window === 'undefined') {
+  console.error('[debug-50d2c1][H5] SSR API origin', {
+    API_URL,
+    APP_URL,
+    SSR_API_ORIGIN: process.env.SSR_API_ORIGIN ?? null,
+    resolvedOrigin: ssrApiOrigin(),
+  });
+}
+// #endregion
 
 /** Bare client for refresh — avoids running the main `api` response interceptor. */
 const refreshClient = axios.create({
-  baseURL: AXIOS_BASE_URL,
+  baseURL: API_URL,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
+attachSsrAbsoluteBaseInterceptor(refreshClient);
 
 /**
  * Single in-flight refresh so concurrent 401s (multi-tab / parallel requests) do not
@@ -110,11 +131,12 @@ function getRefreshedAccessToken(): Promise<string> {
 }
 
 export const api: AxiosInstance = axios.create({
-  baseURL: AXIOS_BASE_URL,
+  baseURL: API_URL,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
+attachSsrAbsoluteBaseInterceptor(api);
 
 api.interceptors.request.use((config) => {
   const token = readAccessToken();

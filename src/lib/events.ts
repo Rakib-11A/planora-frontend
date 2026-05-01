@@ -104,3 +104,37 @@ export async function fetchMyEventsList(
   >;
   return unwrapApiData(res);
 }
+
+/**
+ * Fetch related events for cross-linking on the details page.
+ * Prioritizes events with the same type (PUBLIC/PRIVATE + FREE/PAID).
+ * Excludes the current event.
+ */
+export async function fetchRelatedEvents(
+  currentEventId: string,
+  eventType: string,
+  limit = 4
+): Promise<EventWithType[]> {
+  try {
+    // Fetch public events and filter client-side
+    const data = await fetchEventsList({ page: 1, limit: 20, isPublic: true });
+
+    // Filter out current event and prioritize same type
+    const related = data.items
+      .filter((e) => e.id !== currentEventId)
+      .sort((a, b) => {
+        // Prioritize same event type
+        const aSameType = a.eventType === eventType ? 1 : 0;
+        const bSameType = b.eventType === eventType ? 1 : 0;
+        if (aSameType !== bSameType) return bSameType - aSameType;
+        // Then by rating
+        return b.avgRating - a.avgRating;
+      })
+      .slice(0, limit);
+
+    return related;
+  } catch (err) {
+    console.error('[events] Related events fetch failed', err);
+    return [];
+  }
+}

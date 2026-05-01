@@ -46,9 +46,9 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <Card variant="glass">
-      <CardTitle className="gradient-text text-xl font-bold tracking-tight">Reset password</CardTitle>
-      <CardDescription className="text-slate-600 dark:text-slate-300">
+    <Card>
+      <CardTitle className="text-h3">Reset password</CardTitle>
+      <CardDescription>
         Enter your account email. We&apos;ll send a 6-digit code you can use to set a new password.
       </CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
@@ -70,17 +70,17 @@ export function ForgotPasswordForm() {
           </Button>
         </FormStack>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-muted mt-6 text-center text-sm">
         <Link
           href={routes.login}
-          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+          className="text-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Back to sign in
         </Link>
         {' · '}
         <Link
           href={routes.resetPassword}
-          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+          className="text-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Already have a code?
         </Link>

@@ -28,12 +28,10 @@ export function Logo({ size = 'md', variant = 'default', className, ...rest }: L
     <Link
       href={routes.home}
       className={cn(
-        'focus-visible:ring-planora-primary font-bold focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
+        'font-bold text-primary transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         variant === 'gradient'
-          ? cn(
-              'gradient-text motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105'
-            )
-          : cn('text-planora-primary transition-opacity hover:opacity-90'),
+          ? 'motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105'
+          : '',
         sizeClasses[size],
         className
       )}

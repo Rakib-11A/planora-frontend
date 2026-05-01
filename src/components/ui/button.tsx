@@ -27,18 +27,21 @@ export interface ButtonProps extends ComponentPropsWithoutRef<'button'> {
 }
 
 const base = cn(
-  'inline-flex items-center justify-center gap-2 rounded-md font-medium',
-  'motion-safe:transition-colors motion-safe:duration-150',
-  // Ring-based focus (modern SaaS convention). Uses --ring, which shifts in dark mode.
+  // Apex button type token: 14px / 600 / +0.02em tracking (spec §3).
+  'inline-flex items-center justify-center gap-2 rounded-md font-semibold tracking-[0.02em]',
+  // Hover transition (200ms) and active press scale (100ms) per spec §6.
+  // We transition `transform` in addition to `colors` so the active scale animates.
+  'motion-safe:transition-[colors,transform] motion-safe:duration-200 motion-safe:active:duration-100',
+  'motion-safe:active:scale-[0.97]',
+  // Ring-based focus (deviation from spec §6 — accessibility wins per Phase 1 G12).
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-  // Disabled state — handled via the `disabled` attribute plus visual cues.
   'disabled:pointer-events-none disabled:opacity-50'
 );
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-hover',
   secondary:
-    'bg-surface-subtle text-foreground border border-border hover:bg-surface-elevated hover:border-border-strong',
+    'bg-surface text-foreground border border-border hover:bg-surface-subtle hover:border-border-strong',
   outline:
     'bg-transparent text-foreground border border-border hover:bg-surface-subtle hover:border-border-strong',
   ghost: 'bg-transparent text-foreground hover:bg-surface-subtle',
@@ -46,10 +49,12 @@ const variantClasses: Record<ButtonVariant, string> = {
     'bg-destructive text-destructive-foreground hover:brightness-95 active:brightness-90',
 };
 
+// Apex Fitts's-law floor: primary touch target = 44px (md). `sm` is reserved for
+// dense admin UIs where the action is paired with a larger primary CTA.
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-xs',
-  md: 'h-9 px-4 text-sm',
-  lg: 'h-11 px-5 text-base',
+  sm: 'h-9 px-3 text-xs',
+  md: 'h-11 px-4 text-sm',
+  lg: 'h-12 px-5 text-base',
 };
 
 /**

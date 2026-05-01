@@ -10,17 +10,16 @@ export interface DataTableShellProps extends ComponentPropsWithoutRef<'div'> {
 
 /**
  * DataTableShell — horizontal-scroll wrapper for wide tables on small screens.
- * Default variant is theme-reactive (semantic tokens). Glass variant is
- * retained for legacy marketing surfaces.
+ *
+ * The `'glass'` variant is retired in Phase 2 — the prop still type-checks
+ * but renders identical to `'default'` (Apex semantic surface). Phase 3
+ * removes the variant and the call-site overrides.
  */
-export function DataTableShell({ className, variant = 'default', ...rest }: DataTableShellProps) {
+export function DataTableShell({ className, variant: _variant, ...rest }: DataTableShellProps) {
   return (
     <div
       className={cn(
-        'overflow-x-auto',
-        variant === 'glass'
-          ? 'rounded-xl border border-white/35 bg-white/50 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-slate-900/50'
-          : 'bg-surface border-border rounded-lg border shadow-sm',
+        'bg-surface border-border overflow-x-auto rounded-lg border shadow-low',
         className
       )}
       {...rest}

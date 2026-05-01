@@ -64,11 +64,9 @@ export function RegisterForm() {
   }
 
   return (
-    <Card variant="glass">
-      <CardTitle className="gradient-text text-xl font-bold tracking-tight">Create account</CardTitle>
-      <CardDescription className="text-slate-600 dark:text-slate-300">
-        8+ characters with upper, lower, and a number.
-      </CardDescription>
+    <Card>
+      <CardTitle className="text-h3">Create account</CardTitle>
+      <CardDescription>8+ characters with upper, lower, and a number.</CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
         <FormStack>
           <div>
@@ -121,18 +119,18 @@ export function RegisterForm() {
           </Button>
         </FormStack>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-muted mt-6 text-center text-sm">
         Already have an account?{' '}
         <Link
           href={routes.login}
-          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+          className="text-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Sign in
         </Link>
         {' · '}
         <Link
           href={routes.verifyEmail}
-          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+          className="text-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Verify email
         </Link>

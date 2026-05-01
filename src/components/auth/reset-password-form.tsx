@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
@@ -19,18 +19,12 @@ export function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => searchParams.get('email') ?? '');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string | undefined>>({});
-
-  // Pre-fill email from URL query param (?email=...) set by the forgot-password page
-  useEffect(() => {
-    const emailParam = searchParams.get('email');
-    if (emailParam) setEmail(emailParam);
-  }, [searchParams]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -66,9 +60,9 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <Card variant="glass">
-      <CardTitle className="gradient-text text-xl font-bold tracking-tight">Set a new password</CardTitle>
-      <CardDescription className="text-slate-600 dark:text-slate-300">
+    <Card>
+      <CardTitle className="text-h3">Set a new password</CardTitle>
+      <CardDescription>
         Enter the 6-digit code from your email, then choose a new password.
       </CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
@@ -128,18 +122,18 @@ export function ResetPasswordForm() {
           </Button>
         </FormStack>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-muted mt-6 text-center text-sm">
         Didn&apos;t get a code?{' '}
         <Link
           href={routes.forgotPassword}
-          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+          className="text-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Resend
         </Link>
         {' · '}
         <Link
           href={routes.login}
-          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+          className="text-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Back to sign in
         </Link>

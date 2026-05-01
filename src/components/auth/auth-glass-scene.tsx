@@ -33,21 +33,18 @@ export function AuthGlassScene({
         className
       )}
     >
+      <div className="pointer-events-none absolute inset-0 bg-background" aria-hidden />
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-100 via-indigo-50/40 to-sky-50/60 dark:from-slate-950 dark:via-indigo-950/40 dark:to-slate-900"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,var(--primary-subtle)_0,transparent_34%),radial-gradient(circle_at_82%_80%,var(--surface-subtle)_0,transparent_38%)] opacity-80 dark:opacity-45"
         aria-hidden
       />
       <div
-        className="gradient-animated pointer-events-none absolute inset-0 opacity-[0.12] dark:opacity-[0.08]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -left-20 top-1/4 size-72 rounded-full bg-planora-primary/25 blur-3xl motion-safe:animate-blob-float dark:bg-planora-primary/15"
+        className="pointer-events-none absolute -left-20 top-1/4 size-72 rounded-full bg-primary/20 blur-3xl motion-safe:animate-blob-float dark:bg-primary/12"
         style={{ animationDelay: '0s' }}
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute bottom-0 right-0 size-80 rounded-full bg-planora-secondary/20 blur-3xl motion-safe:animate-blob-float dark:bg-planora-secondary/12"
+        className="pointer-events-none absolute bottom-0 right-0 size-80 rounded-full bg-primary-subtle blur-3xl motion-safe:animate-blob-float dark:bg-primary/10"
         style={{ animationDelay: '-6s' }}
         aria-hidden
       />

@@ -46,11 +46,9 @@ export function LoginForm() {
   }
 
   return (
-    <Card variant="glass">
-      <CardTitle className="gradient-text text-xl font-bold tracking-tight">Sign in</CardTitle>
-      <CardDescription className="text-slate-600 dark:text-slate-300">
-        Welcome back. Use your Planora account credentials.
-      </CardDescription>
+    <Card>
+      <CardTitle className="text-h3">Sign in</CardTitle>
+      <CardDescription>Welcome back. Use your Planora account credentials.</CardDescription>
       <form className="mt-6" onSubmit={(ev) => void onSubmit(ev)}>
         <FormStack>
           <div>
@@ -70,7 +68,7 @@ export function LoginForm() {
               <Label htmlFor="login-password">Password</Label>
               <Link
                 href={routes.forgotPassword}
-                className="text-planora-primary text-xs font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+                className="text-primary text-xs font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Forgot password?
               </Link>
@@ -90,20 +88,20 @@ export function LoginForm() {
           </Button>
         </FormStack>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-muted mt-6 text-center text-sm">
         No account?{' '}
         <Link
           href={routes.register}
-          className="text-planora-primary font-semibold motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+          className="text-primary font-semibold motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Register
         </Link>
       </p>
-      <p className="mt-3 text-center text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-muted mt-4 text-center text-sm">
         New here?{' '}
         <Link
           href={routes.verifyEmail}
-          className="text-planora-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-planora-primary"
+          className="text-primary font-medium motion-safe:transition-colors hover:underline focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Verify email
         </Link>

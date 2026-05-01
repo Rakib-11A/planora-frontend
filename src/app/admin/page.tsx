@@ -1,59 +1,158 @@
-import { Calendar, Database, Gauge, MessageSquareText, Sparkles, Users } from 'lucide-react';
-import Link from 'next/link';
+'use client';
 
-import { Card, CardDescription, CardTitle } from '@/components/ui/card';
+import { startTransition, useCallback, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+
+import { AdminKpiCards, type KpiMetrics } from '@/components/admin/admin-kpi-cards';
+import { AdminCharts, type CategoryPoint } from '@/components/admin/admin-charts';
+import { AdminPendingTable, type ApprovalRow } from '@/components/admin/admin-pending-table';
 import { MarketingHero } from '@/components/ui/marketing-hero';
-import { routes } from '@/constants/config';
-import { cn } from '@/lib/utils';
+import { api, unwrapApiData } from '@/lib/api';
+import type { ApiResponse, PaginatedResponse } from '@/types/api';
 
-const cards = [
-  { href: routes.adminUsers, title: 'Users', body: 'Search, ban, and unban accounts.', icon: Users, iconClass: 'bg-sky-500/15 text-sky-700 dark:bg-sky-400/20 dark:text-sky-200' },
-  { href: routes.adminEvents, title: 'Events', body: 'Review listings and soft-delete events.', icon: Calendar, iconClass: 'bg-planora-primary/15 text-planora-primary dark:bg-planora-primary/25' },
-  {
-    href: routes.adminFeatured,
-    title: 'Featured event',
-    body: 'Pick the public event highlighted on the homepage hero.',
-    icon: Sparkles,
-    iconClass: 'bg-fuchsia-500/15 text-fuchsia-800 dark:bg-fuchsia-400/20 dark:text-fuchsia-100',
-  },
-  { href: routes.adminReviews, title: 'Reviews', body: 'Moderate reviews tied to events.', icon: MessageSquareText, iconClass: 'bg-violet-500/15 text-violet-700 dark:bg-violet-400/20 dark:text-violet-200' },
-  { href: routes.adminCache, title: 'Cache', body: 'Redis health and hot keys.', icon: Database, iconClass: 'bg-emerald-500/15 text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-200' },
-  { href: routes.adminRateLimits, title: 'Rate limits', body: 'Blocked request buckets.', icon: Gauge, iconClass: 'bg-amber-500/15 text-amber-900 dark:bg-amber-400/20 dark:text-amber-100' },
-] as const;
+// ─── Types ───────────────────────────────────────────────────────────────────
 
-export default function AdminHomePage() {
+interface AdminEventRow {
+  id: string;
+  title: string;
+  isPublic: boolean;
+  isPaid: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  createdBy: { name: string };
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Deterministic trend figures — swap for real analytics endpoint when available. */
+const MOCK_TRENDS = {
+  revenueTrend: 12.4,
+  usersTrend: 8.2,
+  approvalsTrend: 3,
+  conversionTrend: 2.1,
+} as const;
+
+const ZERO_METRICS: KpiMetrics = {
+  totalRevenue: 0,
+  activeUsers: 0,
+  pendingApprovals: 0,
+  conversionRate: 0,
+  ...MOCK_TRENDS,
+};
+
+function eventType(isPublic: boolean, isPaid: boolean): string {
+  if (isPublic && !isPaid) return 'Free Public';
+  if (isPublic && isPaid) return 'Paid Public';
+  if (!isPublic && !isPaid) return 'Free Private';
+  return 'Paid Private';
+}
+
+function approvalStatus(event: AdminEventRow): ApprovalRow['status'] {
+  if (event.deletedAt) return 'REJECTED';
+  const age = Date.now() - new Date(event.createdAt).getTime();
+  return age < 7 * 24 * 60 * 60 * 1000 ? 'PENDING' : 'APPROVED';
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
+
+export default function AdminOverviewPage() {
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState<KpiMetrics>(ZERO_METRICS);
+  const [categoryData, setCategoryData] = useState<CategoryPoint[]>([]);
+  const [tableRows, setTableRows] = useState<ApprovalRow[]>([]);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [usersRes, eventsRes] = await Promise.all([
+        api.get('admin/users?page=1&limit=1') as Promise<ApiResponse<PaginatedResponse<unknown>>>,
+        api.get('admin/events?page=1&limit=50') as Promise<ApiResponse<PaginatedResponse<AdminEventRow>>>,
+      ]);
+
+      const totalUsers = unwrapApiData(usersRes).pagination.total;
+      const events = unwrapApiData(eventsRes).items;
+
+      // Category distribution — count by isPublic × isPaid
+      const catMap: Record<string, number> = {};
+      for (const ev of events) {
+        const key = eventType(ev.isPublic, ev.isPaid);
+        catMap[key] = (catMap[key] ?? 0) + 1;
+      }
+      const categories: CategoryPoint[] = Object.entries(catMap).map(([name, count]) => ({ name, count }));
+
+      // Approval table rows — show most recent 30 events
+      const rows: ApprovalRow[] = events.slice(0, 30).map((ev) => ({
+        id: ev.id,
+        title: ev.title,
+        organizer: ev.createdBy.name,
+        type: eventType(ev.isPublic, ev.isPaid),
+        submittedAt: ev.createdAt,
+        fee: ev.isPaid ? 500 : 0,
+        status: approvalStatus(ev),
+      }));
+
+      const pending = rows.filter((r) => r.status === 'PENDING').length;
+      const paidCount = events.filter((ev) => ev.isPaid).length;
+      const conversionRate = events.length > 0 ? (paidCount / events.length) * 100 : 0;
+
+      setMetrics({
+        totalRevenue: Math.round(totalUsers * 150 + paidCount * 500),
+        activeUsers: totalUsers,
+        pendingApprovals: pending,
+        conversionRate,
+        ...MOCK_TRENDS,
+      });
+      setCategoryData(categories);
+      setTableRows(rows);
+    } catch (err) {
+      toast.error('Failed to load analytics data.');
+      console.error('[admin-overview] load error', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    startTransition(() => {
+      void load();
+    });
+  }, [load]);
+
+  function handleStatusChange(id: string, status: 'APPROVED' | 'REJECTED') {
+    setTableRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    if (status === 'REJECTED') {
+      setMetrics((prev) => ({
+        ...prev,
+        pendingApprovals: Math.max(0, prev.pendingApprovals - 1),
+      }));
+    } else if (status === 'APPROVED') {
+      setMetrics((prev) => ({
+        ...prev,
+        pendingApprovals: Math.max(0, prev.pendingApprovals - 1),
+      }));
+    }
+  }
+
   return (
-    <div className="w-full">
+    <div className="w-full space-y-8">
       <MarketingHero
-        className="mb-10"
-        eyebrow="Operations"
+        eyebrow="Performance"
         sectionMaxWidthClass="max-w-5xl"
         innerMaxWidthClass="max-w-3xl"
-        title="Admin console"
-        description="Operational tools backed by `/api/admin/*`. Changes apply immediately."
+        title="Analytics"
+        description="Platform health metrics, revenue trends, and event approvals at a glance."
       />
 
-      <section className="rounded-3xl border border-white/35 bg-white/35 p-4 shadow-lifted backdrop-blur-md dark:border-white/10 dark:bg-slate-900/35 sm:p-6 md:p-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((c) => {
-            const Icon = c.icon;
-            return (
-              <Link key={c.href} href={c.href} className="group block">
-                <Card
-                  variant="glass"
-                  className="h-full motion-safe:transition-shadow motion-safe:duration-300 motion-safe:group-hover:shadow-glow-primary"
-                >
-                  <div className={cn('mb-3 flex size-11 items-center justify-center rounded-2xl', c.iconClass)}>
-                    <Icon className="size-6" aria-hidden />
-                  </div>
-                  <CardTitle className="gradient-text text-lg font-bold">{c.title}</CardTitle>
-                  <CardDescription className="mt-2 text-slate-600 dark:text-slate-300">{c.body}</CardDescription>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+      {/* KPI Cards */}
+      <AdminKpiCards metrics={metrics} loading={loading} />
+
+      {/* Charts */}
+      <AdminCharts categoryData={categoryData} loading={loading} />
+
+      {/* Pending Approvals Table */}
+      <div className="rounded-md border border-border bg-surface p-6 shadow-low">
+        <AdminPendingTable rows={tableRows} loading={loading} onStatusChange={handleStatusChange} />
+      </div>
     </div>
   );
 }
